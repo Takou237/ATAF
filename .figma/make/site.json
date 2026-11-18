@@ -1,0 +1,10 @@
+{
+  "description": "This dynamic web application modernizes the ATAF website, providing individual pages with updated content, user-friendly forms, and a sleek, minimalist design.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
