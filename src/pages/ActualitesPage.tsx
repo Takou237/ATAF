@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { news } from '../data';
+import { getNews, type NewsItem } from '../lib/api';
+import { useApi } from '../hooks/useApi';
 
 const PageHero = ({ title, subtitle, breadcrumb }: { title: string; subtitle?: string; breadcrumb: string }) => (
   <div className="bg-[#1A4F8A] text-white py-14">
@@ -35,7 +36,7 @@ function SubNav({ current }: { current: string }) {
   );
 }
 
-function NewsGrid({ items, title, subtitle, breadcrumb, navLabel }: { items: typeof news; title: string; subtitle?: string; breadcrumb: string; navLabel: string }) {
+function NewsGrid({ items, title, subtitle, breadcrumb, navLabel }: { items: NewsItem[]; title: string; subtitle?: string; breadcrumb: string; navLabel: string }) {
   const [search, setSearch] = useState('');
   const filtered = items.filter((n) => !search || n.title.toLowerCase().includes(search.toLowerCase()));
 
@@ -80,7 +81,10 @@ function NewsGrid({ items, title, subtitle, breadcrumb, navLabel }: { items: typ
 }
 
 function NewsDetail({ id }: { id: number }) {
+  const { data: newsData, loading } = useApi(getNews);
+  const news = newsData ?? [];
   const item = news.find((n) => n.id === id);
+  if (loading) return <div className="p-20 text-center text-slate-400">Chargement de l'article…</div>;
   if (!item) return <div className="p-20 text-center text-slate-400">Article non trouvé</div>;
   return (
     <>
@@ -182,6 +186,8 @@ function Communiques() {
 
 export default function ActualitesPage() {
   const { section } = useParams<{ section?: string }>();
+  const { data: newsData } = useApi(getNews);
+  const news = newsData ?? [];
 
   // section can be a numeric id for detail view
   const numericId = section && !isNaN(parseInt(section)) ? parseInt(section) : null;

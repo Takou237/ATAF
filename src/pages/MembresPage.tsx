@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { members } from '../data';
+import { getMembers, submitMembershipApplication } from '../lib/api';
+import { useApi } from '../hooks/useApi';
 
 const PageHero = ({ title, subtitle, breadcrumb }: { title: string; subtitle?: string; breadcrumb: string }) => (
   <div className="bg-[#1A4F8A] text-white py-14">
@@ -39,6 +40,8 @@ function Annuaire() {
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
   const [category, setCategory] = useState('');
+  const { data: membersData, loading } = useApi(getMembers);
+  const members = membersData ?? [];
 
   const countries = [...new Set(members.map((m) => m.country))].sort();
   const categories = [...new Set(members.map((m) => m.category))].sort();
@@ -76,6 +79,7 @@ function Annuaire() {
           </select>
         </div>
 
+        {loading && <p className="text-slate-400 text-sm mb-4">Chargement de l'annuaire…</p>}
         <p className="text-slate-500 text-sm mb-5">{filtered.length} membre{filtered.length > 1 ? 's' : ''} trouvé{filtered.length > 1 ? 's' : ''}</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -104,6 +108,8 @@ function Annuaire() {
 }
 
 function Compagnies() {
+  const { data: membersData } = useApi(getMembers);
+  const members = membersData ?? [];
   const airlines = members.filter((m) => m.category === 'Compagnie aérienne');
   return (
     <>
@@ -140,6 +146,8 @@ function Compagnies() {
 }
 
 function Partenaires() {
+  const { data: membersData } = useApi(getMembers);
+  const members = membersData ?? [];
   const partners = members.filter((m) => m.category !== 'Compagnie aérienne');
   return (
     <>
@@ -168,10 +176,30 @@ function Partenaires() {
 function Adhesion() {
   const [form, setForm] = useState({ name: '', company: '', country: '', email: '', phone: '', category: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setSending(true);
+    setError(null);
+
+    try {
+      await submitMembershipApplication({
+        name: form.name,
+        organisation: form.company,
+        country: form.country,
+        email: form.email,
+        phone: form.phone || undefined,
+        category: form.category || undefined,
+        message: form.message || undefined,
+      });
+      setSent(true);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "L'envoi de la demande a échoué.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -249,8 +277,9 @@ function Adhesion() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Message</label>
                   <textarea rows={4} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className="w-full px-3 py-2.5 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-[#1A4F8A] resize-none" placeholder="Présentez brièvement votre organisation et votre intérêt pour l'ATAF..." />
                 </div>
-                <button type="submit" className="w-full py-3 bg-[#1A4F8A] text-white rounded-md font-medium hover:bg-[#12376A] transition-colors">
-                  Envoyer ma demande d'adhésion
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+                <button type="submit" disabled={sending} className="w-full py-3 bg-[#1A4F8A] text-white rounded-md font-medium hover:bg-[#12376A] transition-colors disabled:opacity-60">
+                  {sending ? 'Envoi en cours…' : "Envoyer ma demande d'adhésion"}
                 </button>
               </form>
             )}

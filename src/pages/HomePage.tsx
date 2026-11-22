@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { news, events } from '../data';
+import { getEvents, getMembers, getNews, subscribeNewsletter } from '../lib/api';
+import { useApi } from '../hooks/useApi';
 
 const stats = [
   { value: '75+', label: 'Années d\'existence' },
@@ -72,6 +73,30 @@ export default function HomePage() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribeError, setSubscribeError] = useState<string | null>(null);
+
+  const { data: newsData, loading: newsLoading } = useApi(getNews);
+  const { data: eventsData, loading: eventsLoading } = useApi(getEvents);
+  const { data: membersData } = useApi(getMembers);
+  const news = newsData ?? [];
+  const events = eventsData ?? [];
+  const members = membersData ?? [];
+
+  const handleSubscribe = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSubscribing(true);
+    setSubscribeError(null);
+
+    try {
+      await subscribeNewsletter(email, name);
+      setSubscribed(true);
+    } catch (error) {
+      setSubscribeError(error instanceof Error ? error.message : "L'inscription a échoué.");
+    } finally {
+      setSubscribing(false);
+    }
+  };
 
   const filteredNews = activeFilter === 'Tous'
     ? news.slice(0, 6)
@@ -252,6 +277,7 @@ export default function HomePage() {
             </div>
           </div>
 
+          {newsLoading && <p className="text-slate-400 text-center py-6">Chargement des actualités…</p>}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredNews.map((item) => (
               <Link key={item.id} to={`/actualites/${item.id}`} className="group bg-white border border-slate-100 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
@@ -294,6 +320,7 @@ export default function HomePage() {
             <Link to="/evenements/agenda" className="text-sm text-[#1A4F8A] font-medium hover:underline">Voir tout l'agenda →</Link>
           </div>
 
+          {eventsLoading && <p className="text-slate-400 text-center py-6">Chargement des événements…</p>}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {upcomingEvents.map((ev) => {
               const d = new Date(ev.date);
@@ -337,10 +364,10 @@ export default function HomePage() {
             <h2 className="text-3xl font-bold text-[#0D2B4E]" style={{ fontFamily: 'Instrument Serif, serif' }}>Nos membres</h2>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {['Air France', 'Air Algérie', 'Royal Air Maroc', 'Tunisair', 'Brussels Airlines', 'Air Sénégal', 'Air Côte d\'Ivoire', 'Corsair', 'Air Caraïbes', 'MEA'].map((m) => (
-              <div key={m} className="px-5 py-2.5 border border-slate-200 rounded-lg text-slate-500 text-sm font-medium hover:border-[#1A4F8A] hover:text-[#1A4F8A] transition-colors cursor-pointer">
-                {m}
-              </div>
+            {members.slice(0, 10).map((member) => (
+              <Link key={member.id} to="/membres/annuaire" className="px-5 py-2.5 border border-slate-200 rounded-lg text-slate-500 text-sm font-medium hover:border-[#1A4F8A] hover:text-[#1A4F8A] transition-colors">
+                {member.name}
+              </Link>
             ))}
           </div>
           <div className="text-center mt-8">
@@ -396,7 +423,8 @@ export default function HomePage() {
               ✓ Inscription confirmée ! Merci de votre intérêt pour l'ATAF.
             </div>
           ) : (
-            <form onSubmit={(e) => { e.preventDefault(); setSubscribed(true); }} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <>
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input
                 type="text"
                 placeholder="Votre nom"
@@ -413,10 +441,12 @@ export default function HomePage() {
                 required
                 className="flex-1 px-4 py-3 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-[#1A4F8A]"
               />
-              <button type="submit" className="px-6 py-3 bg-[#1A4F8A] text-white rounded-md font-medium hover:bg-[#12376A] transition-colors whitespace-nowrap">
-                S'inscrire
+              <button type="submit" disabled={subscribing} className="px-6 py-3 bg-[#1A4F8A] text-white rounded-md font-medium hover:bg-[#12376A] transition-colors whitespace-nowrap disabled:opacity-60">
+                {subscribing ? 'Envoi…' : "S'inscrire"}
               </button>
             </form>
+            {subscribeError && <p className="text-red-500 text-sm mt-3">{subscribeError}</p>}
+            </>
           )}
         </div>
       </section>

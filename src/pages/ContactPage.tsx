@@ -1,9 +1,33 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { submitContact } from '../lib/api';
 
 export default function ContactPage() {
   const [form, setForm] = useState({ nom: '', email: '', sujet: '', message: '', organisation: '' });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSending(true);
+    setError(null);
+
+    try {
+      await submitContact({
+        name: form.nom,
+        email: form.email,
+        organisation: form.organisation || undefined,
+        subject: form.sujet,
+        message: form.message,
+      });
+      setSent(true);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "L'envoi du message a échoué.");
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div>
@@ -76,7 +100,7 @@ export default function ContactPage() {
                 <p className="text-slate-600">Merci de nous avoir contactés. Notre équipe vous répondra dans les meilleurs délais.</p>
               </div>
             ) : (
-              <form onSubmit={(e) => { e.preventDefault(); setSent(true); }} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">Nom complet *</label>
@@ -114,8 +138,9 @@ export default function ContactPage() {
                     className="w-full px-4 py-2.5 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-[#1A4F8A] focus:ring-1 focus:ring-[#1A4F8A]/20 resize-none"
                   />
                 </div>
-                <button type="submit" className="w-full py-3 bg-[#1A4F8A] text-white rounded-md font-medium hover:bg-[#12376A] transition-colors text-sm">
-                  Envoyer le message
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+                <button type="submit" disabled={sending} className="w-full py-3 bg-[#1A4F8A] text-white rounded-md font-medium hover:bg-[#12376A] transition-colors text-sm disabled:opacity-60">
+                  {sending ? 'Envoi en cours…' : 'Envoyer le message'}
                 </button>
               </form>
             )}

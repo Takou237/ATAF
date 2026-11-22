@@ -103,14 +103,15 @@ Base : `http://localhost:8000/api`
 ## 4. TODO — Site public
 
 ### 4.1 Branchement API (priorité P0)
-- [ ] Créer `src/lib/api.ts` (fetch + gestion erreurs + Bearer token)
-- [ ] Remplacer les imports de `src/data/index.ts` par des appels API dans chaque page
-- [ ] États de chargement (skeletons) et d'erreur sur toutes les pages
+- [x] Créer `src/lib/api.ts` (fetch + gestion erreurs + Bearer token) + `src/hooks/useApi.ts`
+- [x] Remplacer les imports de `src/data/index.ts` par des appels API dans chaque page (fallback statique si API injoignable)
+- [x] États de chargement et d'erreur de base sur les pages branchées
 - [ ] Pagination ou « charger plus » sur Actualités et Ressources
 - [ ] Recherche et filtres côté serveur (membres par catégorie/pays, actualités par catégorie, événements par statut)
-- [ ] Connecter les formulaires (Contact, Newsletter, Événement, Adhésion, Agrément) avec validation et messages de succès/erreur
-- [ ] Honeypot anti-spam + protection CSRF/token si cookies Sanctum
-- [ ] Vérificateur d'agrément : appel `/agencies/verify/{num}` au lieu du tableau statique
+- [x] Connecter les formulaires (Contact, Newsletter, Événement, Adhésion, Agrément) avec messages de succès/erreur
+- [ ] Honeypot anti-spam côté front (le backend valide déjà le champ `website`)
+- [x] Vérificateur d'agrément : appel `/agencies/verify/{num}` au lieu du tableau statique
+- [x] Espace membres : login/logout Sanctum réel + restauration de session via `/auth/me`
 
 ### 4.2 SEO & partage
 - [ ] `react-helmet-async` : title/description par page

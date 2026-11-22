@@ -1,12 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { news, events, regulations } from '../data';
+import { getEvents, getNews, getToken, login, logout, me, setToken, type AuthUser } from '../lib/api';
+import { useApi } from '../hooks/useApi';
 
-type View = 'login' | 'dashboard';
-
-function LoginForm({ onLogin }: { onLogin: () => void }) {
+function LoginForm({ onLogin }: { onLogin: (user: AuthUser) => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSending(true);
+    setError(null);
+
+    try {
+      onLogin(await login(email, password));
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Connexion impossible.');
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-[#F8F9FC]">
@@ -20,7 +35,7 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-          <form onSubmit={(e) => { e.preventDefault(); onLogin(); }} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Adresse email</label>
               <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="votre@email.com" className="w-full px-4 py-3 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-[#1A4F8A]" />
@@ -32,8 +47,9 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
               </div>
               <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-[#1A4F8A]" />
             </div>
-            <button type="submit" className="w-full py-3 bg-[#1A4F8A] text-white rounded-md font-medium hover:bg-[#12376A] transition-colors">
-              Se connecter
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            <button type="submit" disabled={sending} className="w-full py-3 bg-[#1A4F8A] text-white rounded-md font-medium hover:bg-[#12376A] transition-colors disabled:opacity-60">
+              {sending ? 'Connexion…' : 'Se connecter'}
             </button>
           </form>
 
@@ -51,8 +67,13 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
   );
 }
 
-function Dashboard({ onLogout }: { onLogout: () => void }) {
+function Dashboard({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('accueil');
+  const { data: eventsData } = useApi(getEvents);
+  const { data: newsData } = useApi(getNews);
+  const events = eventsData ?? [];
+  const news = newsData ?? [];
+  const memberNews = news.filter((item) => item.isMembersOnly);
 
   const tabs = [
     { id: 'accueil', label: 'Tableau de bord' },
@@ -76,8 +97,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div>
             <p className="text-blue-300 text-sm">Bonjour</p>
-            <h1 className="text-2xl font-bold mt-0.5">Jean-Pierre DUPONT</h1>
-            <p className="text-blue-300 text-sm">Air France · Membre actif depuis 1950</p>
+            <h1 className="text-2xl font-bold mt-0.5">{user.name}</h1>
+            <p className="text-blue-300 text-sm">
+              {user.organisation || user.profile?.member?.name || 'Membre ATAF'}
+              {user.profile?.member?.joined_year ? ` · Membre depuis ${user.profile.member.joined_year}` : ''}
+            </p>
           </div>
           <button onClick={onLogout} className="text-sm text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
@@ -187,15 +211,14 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           <div>
             <h2 className="font-semibold text-[#0D2B4E] mb-5">Actualités réservées aux membres</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {[
-                { title: 'Compte rendu confidentiel — Réunion IATA mai 2026', date: '2 juin 2026', category: 'ATAF' },
-                { title: 'Note interne : évolutions tarifaires prévues pour 2027', date: '15 mai 2026', category: 'Réglementation' },
-                { title: 'Rapport exclusif : analyse de la concurrence sur les routes francophones', date: '3 avril 2026', category: 'Études' },
-              ].map((item, i) => (
-                <div key={i} className="p-5 bg-white border border-slate-100 rounded-xl hover:shadow-md transition-shadow cursor-pointer">
+              {memberNews.length === 0 && (
+                <p className="text-slate-400 text-sm">Aucune actualité réservée pour le moment.</p>
+              )}
+              {memberNews.map((item) => (
+                <div key={item.id} className="p-5 bg-white border border-slate-100 rounded-xl hover:shadow-md transition-shadow cursor-pointer">
                   <span className="text-xs font-medium text-[#3BAA35] bg-[#3BAA35]/10 px-2 py-0.5 rounded-full">{item.category}</span>
                   <h3 className="font-semibold text-[#0D2B4E] mt-2 mb-1">{item.title}</h3>
-                  <p className="text-xs text-slate-400">{item.date}</p>
+                  <p className="text-xs text-slate-400">{new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
               ))}
             </div>
@@ -234,13 +257,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             <h2 className="font-semibold text-[#0D2B4E] mb-5">Mon profil</h2>
             <div className="bg-white border border-slate-100 rounded-xl p-6 space-y-4">
               {[
-                ['Nom', 'DUPONT'],
-                ['Prénom', 'Jean-Pierre'],
-                ['Fonction', 'Directeur des Relations Institutionnelles'],
-                ['Organisation', 'Air France'],
-                ['Pays', 'France'],
-                ['Email', 'jp.dupont@airfrance.fr'],
-                ['Téléphone', '+33 1 41 56 78 00'],
+                ['Nom', user.name],
+                ['Organisation', user.organisation || user.profile?.member?.name || '—'],
+                ['Email', user.email],
+                ['Téléphone', user.phone || user.profile?.phone || '—'],
+                ['Rôle', user.roles.length > 0 ? user.roles.join(', ') : 'Membre'],
               ].map(([label, value]) => (
                 <div key={label} className="flex items-center gap-4 py-3 border-b border-slate-100 last:border-0">
                   <span className="text-slate-500 text-sm w-40 shrink-0">{label}</span>
@@ -259,8 +280,43 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 }
 
 export default function EspaceMembresPage() {
-  const [view, setView] = useState<View>('login');
-  return view === 'login'
-    ? <LoginForm onLogin={() => setView('dashboard')} />
-    : <Dashboard onLogout={() => setView('login')} />;
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [checking, setChecking] = useState(() => Boolean(getToken()));
+
+  useEffect(() => {
+    if (!getToken()) {
+      setChecking(false);
+      return;
+    }
+
+    let active = true;
+
+    me()
+      .then((current) => {
+        if (active) setUser(current);
+      })
+      .catch(() => {
+        setToken(null);
+      })
+      .finally(() => {
+        if (active) setChecking(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (checking) {
+    return <div className="min-h-[60vh] flex items-center justify-center text-slate-400">Chargement de votre espace…</div>;
+  }
+
+  if (!user) return <LoginForm onLogin={setUser} />;
+
+  const handleLogout = async () => {
+    await logout();
+    setUser(null);
+  };
+
+  return <Dashboard user={user} onLogout={handleLogout} />;
 }

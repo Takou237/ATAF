@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { events } from '../data';
+import { getEvent, getEvents, registerToEvent, type EventItem, type EventProgramItem } from '../lib/api';
+import { useApi } from '../hooks/useApi';
 
 const PageHero = ({ title, subtitle, breadcrumb }: { title: string; subtitle?: string; breadcrumb: string }) => (
   <div className="bg-[#1A4F8A] text-white py-14">
@@ -43,7 +44,7 @@ const statusColors: Record<string, string> = {
   Annulé: 'bg-red-50 text-red-500',
 };
 
-function EventCard({ ev }: { ev: typeof events[0] }) {
+function EventCard({ ev }: { ev: EventItem }) {
   const d = new Date(ev.date);
   return (
     <Link to={`/evenements/${ev.id}`} className="group bg-white border border-slate-100 rounded-xl overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
@@ -77,14 +78,63 @@ function EventCard({ ev }: { ev: typeof events[0] }) {
   );
 }
 
+const defaultProgram: EventProgramItem[] = [
+  { time: '09:00', title: 'Accueil et enregistrement des participants' },
+  { time: '09:30', title: 'Ouverture officielle — Secrétaire Général ATAF' },
+  { time: '10:00', title: 'Session 1 : Présentation thématique principale' },
+  { time: '11:30', title: 'Pause-café et networking' },
+  { time: '14:00', title: 'Session 2 : Ateliers et groupes de travail' },
+  { time: '16:00', title: 'Conclusions et recommandations' },
+  { time: '17:00', title: 'Clôture et cocktail de réseautage' },
+];
+
 function EventDetail({ id }: { id: number }) {
+  const { data: eventsData, loading } = useApi(getEvents);
+  const events = eventsData ?? [];
   const ev = events.find((e) => e.id === id);
+  const { data: detail } = useApi<EventItem & { programs: EventProgramItem[] } | null>(
+    () => (ev ? getEvent(ev.slug) : Promise.resolve(null)),
+    [ev?.slug],
+  );
+
   const [form, setForm] = useState({ nom: '', prenom: '', fonction: '', entreprise: '', pays: '', telephone: '', email: '', participation: '', besoins: '' });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ev) return;
+
+    setSending(true);
+    setError(null);
+
+    try {
+      await registerToEvent(ev.slug, {
+        lastName: form.nom,
+        firstName: form.prenom,
+        function: form.fonction,
+        company: form.entreprise,
+        country: form.pays,
+        phone: form.telephone || undefined,
+        email: form.email,
+        participationType: form.participation || undefined,
+        specialNeeds: form.besoins || undefined,
+      });
+      setSent(true);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "L'inscription a échoué.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (loading) return <div className="p-20 text-center text-slate-400">Chargement de l'événement…</div>;
   if (!ev) return <div className="p-20 text-center text-slate-400">Événement non trouvé</div>;
 
   const d = new Date(ev.date);
+  const programs = detail?.programs?.length ? detail.programs : defaultProgram;
+  const filled = ev.maxParticipants > 0 ? Math.min(100, (ev.registered / ev.maxParticipants) * 100) : 0;
 
   return (
     <>
@@ -115,15 +165,7 @@ function EventDetail({ id }: { id: number }) {
 
             <h2 className="text-xl font-bold text-[#0D2B4E] mb-4">Programme</h2>
             <div className="space-y-3 mb-8">
-              {[
-                { time: '09:00', title: 'Accueil et enregistrement des participants' },
-                { time: '09:30', title: 'Ouverture officielle — Secrétaire Général ATAF' },
-                { time: '10:00', title: 'Session 1 : Présentation thématique principale' },
-                { time: '11:30', title: 'Pause-café et networking' },
-                { time: '14:00', title: 'Session 2 : Ateliers et groupes de travail' },
-                { time: '16:00', title: 'Conclusions et recommandations' },
-                { time: '17:00', title: 'Clôture et cocktail de réseautage' },
-              ].map((p) => (
+              {programs.map((p) => (
                 <div key={p.time} className="flex gap-4 p-3 bg-slate-50 rounded-lg">
                   <span className="text-[#1A4F8A] font-mono text-sm font-medium shrink-0 w-12">{p.time}</span>
                   <span className="text-slate-700 text-sm">{p.title}</span>
@@ -141,7 +183,7 @@ function EventDetail({ id }: { id: number }) {
                   <span>{ev.maxParticipants - ev.registered} places restantes</span>
                 </div>
                 <div className="w-full h-2 bg-slate-200 rounded-full">
-                  <div className="h-full bg-[#3BAA35] rounded-full transition-all" style={{ width: `${(ev.registered / ev.maxParticipants) * 100}%` }} />
+                  <div className="h-full bg-[#3BAA35] rounded-full transition-all" style={{ width: `${filled}%` }} />
                 </div>
               </div>
 
@@ -150,7 +192,7 @@ function EventDetail({ id }: { id: number }) {
                   ✓ Inscription enregistrée ! Un récapitulatif vous sera envoyé par email.
                 </div>
               ) : (
-                <form onSubmit={(e) => { e.preventDefault(); setSent(true); }} className="space-y-3">
+                <form onSubmit={handleSubmit} className="space-y-3">
                   {[
                     { field: 'nom', label: 'Nom *', type: 'text' },
                     { field: 'prenom', label: 'Prénom *', type: 'text' },
@@ -183,8 +225,9 @@ function EventDetail({ id }: { id: number }) {
                     <label className="block text-xs font-medium text-slate-600 mb-1">Besoins particuliers</label>
                     <textarea rows={2} value={form.besoins} onChange={(e) => setForm({ ...form, besoins: e.target.value })} className="w-full px-3 py-2 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-[#1A4F8A] resize-none" />
                   </div>
-                  <button type="submit" className="w-full py-2.5 bg-[#1A4F8A] text-white rounded-md text-sm font-medium hover:bg-[#12376A] transition-colors">
-                    S'inscrire
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
+                  <button type="submit" disabled={sending} className="w-full py-2.5 bg-[#1A4F8A] text-white rounded-md text-sm font-medium hover:bg-[#12376A] transition-colors disabled:opacity-60">
+                    {sending ? 'Inscription…' : "S'inscrire"}
                   </button>
                 </form>
               )}
@@ -197,13 +240,17 @@ function EventDetail({ id }: { id: number }) {
 }
 
 function EventList({ type, title, navLabel }: { type?: string; title: string; navLabel: string }) {
+  const { data: eventsData, loading } = useApi(getEvents);
+  const events = eventsData ?? [];
   const filtered = type ? events.filter((e) => e.type === type) : events;
   return (
     <>
       <PageHero title={title} breadcrumb={`Événements / ${navLabel}`} />
       <SubNav current={navLabel} />
       <div className="max-w-7xl mx-auto px-6 py-10">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <p className="text-slate-400 text-center py-10">Chargement des événements…</p>
+        ) : filtered.length === 0 ? (
           <p className="text-slate-400 text-center py-10">Aucun événement prévu pour le moment.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -217,6 +264,8 @@ function EventList({ type, title, navLabel }: { type?: string; title: string; na
 
 export default function EvenementsPage() {
   const { section } = useParams<{ section?: string }>();
+  const { data: eventsData, loading } = useApi(getEvents);
+  const events = eventsData ?? [];
 
   const numericId = section && !isNaN(parseInt(section)) ? parseInt(section) : null;
   if (numericId) return <EventDetail id={numericId} />;
@@ -231,9 +280,13 @@ export default function EvenementsPage() {
       <PageHero title="Agenda des événements" subtitle="Séminaires, formations, assemblées et conférences ATAF" breadcrumb="Événements / Agenda" />
       <SubNav current="Agenda" />
       <div className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((ev) => <EventCard key={ev.id} ev={ev} />)}
-        </div>
+        {loading ? (
+          <p className="text-slate-400 text-center py-10">Chargement des événements…</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {events.map((ev) => <EventCard key={ev.id} ev={ev} />)}
+          </div>
+        )}
       </div>
     </>
   );

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logoImg from '../imports/LOGO-UPDATE-ATAG-1.png';
+import { subscribeNewsletter } from '../lib/api';
 
 const navItems = [
   { label: "L'ATAF", path: '/ataf', children: [
@@ -53,7 +54,25 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [newsletterError, setNewsletterError] = useState<string | null>(null);
   const location = useLocation();
+
+  const handleNewsletter = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setNewsletterStatus('sending');
+    setNewsletterError(null);
+
+    try {
+      await subscribeNewsletter(newsletterEmail);
+      setNewsletterStatus('sent');
+      setNewsletterEmail('');
+    } catch (reason) {
+      setNewsletterStatus('error');
+      setNewsletterError(reason instanceof Error ? reason.message : "L'inscription a échoué.");
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -234,10 +253,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </ul>
               <div className="mt-5">
                 <p className="text-sm text-slate-400 mb-2">Newsletter ATAF</p>
-                <div className="flex gap-2">
-                  <input type="email" placeholder="votre@email.com" className="flex-1 bg-white/10 text-white text-sm px-3 py-2 rounded placeholder-slate-500 border border-white/10 focus:outline-none focus:border-[#3BAA35]" />
-                  <button className="px-3 py-2 bg-[#3BAA35] rounded text-sm hover:bg-[#2D8A28] transition-colors">OK</button>
-                </div>
+                <form onSubmit={handleNewsletter} className="flex gap-2">
+                  <input
+                    type="email"
+                    required
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    placeholder="votre@email.com"
+                    className="flex-1 bg-white/10 text-white text-sm px-3 py-2 rounded placeholder-slate-500 border border-white/10 focus:outline-none focus:border-[#3BAA35]"
+                  />
+                  <button type="submit" disabled={newsletterStatus === 'sending'} className="px-3 py-2 bg-[#3BAA35] rounded text-sm hover:bg-[#2D8A28] transition-colors disabled:opacity-60">
+                    {newsletterStatus === 'sending' ? '…' : 'OK'}
+                  </button>
+                </form>
+                {newsletterStatus === 'sent' && <p className="text-[#4DC247] text-xs mt-2">Inscription confirmée.</p>}
+                {newsletterStatus === 'error' && <p className="text-red-400 text-xs mt-2">{newsletterError}</p>}
               </div>
             </div>
           </div>

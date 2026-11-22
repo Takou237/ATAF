@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { agencies } from '../data';
+import { getAgencies, submitAgencyApplication, verifyAgency, type AgencyItem } from '../lib/api';
+import { useApi } from '../hooks/useApi';
 
 const PageHero = ({ title, subtitle, breadcrumb }: { title: string; subtitle?: string; breadcrumb: string }) => (
   <div className="bg-[#1A4F8A] text-white py-14">
@@ -37,6 +38,8 @@ function SubNav({ current }: { current: string }) {
 function Annuaire() {
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
+  const { data: agenciesData, loading } = useApi(getAgencies);
+  const agencies = agenciesData ?? [];
 
   const countries = [...new Set(agencies.map((a) => a.country))].sort();
   const filtered = agencies.filter((a) =>
@@ -56,6 +59,7 @@ function Annuaire() {
             {countries.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
+        {loading && <p className="text-slate-400 text-sm mb-4">Chargement des agences…</p>}
         <p className="text-slate-500 text-sm mb-5">{filtered.length} agence{filtered.length > 1 ? 's' : ''} trouvée{filtered.length > 1 ? 's' : ''}</p>
         <div className="overflow-x-auto bg-white rounded-xl border border-slate-100 shadow-sm">
           <table className="w-full text-sm">
@@ -89,17 +93,25 @@ function Annuaire() {
 function Verification() {
   const [code, setCode] = useState('');
   const [result, setResult] = useState<null | 'found' | 'not-found'>(null);
-  const [foundAgency, setFoundAgency] = useState<typeof agencies[0] | null>(null);
+  const [foundAgency, setFoundAgency] = useState<AgencyItem | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const verify = (e: React.FormEvent) => {
+  const verify = async (e: React.FormEvent) => {
     e.preventDefault();
-    const agency = agencies.find((a) => a.code.toLowerCase() === code.toLowerCase().trim());
-    if (agency) {
-      setResult('found');
-      setFoundAgency(agency);
-    } else {
-      setResult('not-found');
+    setChecking(true);
+    setError(null);
+
+    try {
+      const response = await verifyAgency(code);
+      setResult(response.found ? 'found' : 'not-found');
+      setFoundAgency(response.agency);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'La vérification a échoué.');
+      setResult(null);
       setFoundAgency(null);
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -125,10 +137,12 @@ function Verification() {
               onChange={(e) => { setCode(e.target.value); setResult(null); }}
               className="flex-1 px-4 py-3 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-[#1A4F8A] font-mono"
             />
-            <button type="submit" className="px-6 py-3 bg-[#1A4F8A] text-white rounded-md text-sm font-medium hover:bg-[#12376A] transition-colors">
-              Vérifier
+            <button type="submit" disabled={checking} className="px-6 py-3 bg-[#1A4F8A] text-white rounded-md text-sm font-medium hover:bg-[#12376A] transition-colors disabled:opacity-60">
+              {checking ? 'Vérification…' : 'Vérifier'}
             </button>
           </form>
+
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
           {result === 'found' && foundAgency && (
             <div className="bg-[#3BAA35]/10 border border-[#3BAA35]/30 rounded-xl p-6">
@@ -175,6 +189,31 @@ function Verification() {
 function Informations() {
   const [form, setForm] = useState({ nom: '', prenom: '', agence: '', pays: '', email: '', telephone: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
+    setError(null);
+
+    try {
+      await submitAgencyApplication({
+        firstName: form.prenom,
+        lastName: form.nom,
+        agencyName: form.agence,
+        country: form.pays,
+        email: form.email,
+        phone: form.telephone || undefined,
+        message: form.message || undefined,
+      });
+      setSent(true);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "L'envoi de la demande a échoué.");
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <>
@@ -212,7 +251,7 @@ function Informations() {
                 <p className="text-sm text-slate-600">Notre secrétariat vous contactera sous 5 jours ouvrés avec un dossier de demande d'agrément.</p>
               </div>
             ) : (
-              <form onSubmit={(e) => { e.preventDefault(); setSent(true); }} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <h3 className="font-semibold text-[#0D2B4E]">Demande de dossier d'agrément</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {[['nom', 'Nom *'], ['prenom', 'Prénom *']].map(([f, l]) => (
@@ -232,8 +271,9 @@ function Informations() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Message</label>
                   <textarea rows={3} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className="w-full px-3 py-2.5 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-[#1A4F8A] resize-none" />
                 </div>
-                <button type="submit" className="w-full py-3 bg-[#1A4F8A] text-white rounded-md font-medium hover:bg-[#12376A] transition-colors">
-                  Envoyer ma demande
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+                <button type="submit" disabled={sending} className="w-full py-3 bg-[#1A4F8A] text-white rounded-md font-medium hover:bg-[#12376A] transition-colors disabled:opacity-60">
+                  {sending ? 'Envoi en cours…' : 'Envoyer ma demande'}
                 </button>
               </form>
             )}
