@@ -3,10 +3,11 @@
 namespace App\Filament\Resources\Events\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 
 class EventForm
@@ -21,9 +22,21 @@ class EventForm
                     ->maxLength(255),
                 TextInput::make('slug')
                     ->helperText('Laisser vide pour générer automatiquement.'),
-                Textarea::make('description')
+                RichEditor::make('description')
                     ->label('Description')
-                    ->rows(6)
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'link',
+                        'bulletList',
+                        'orderedList',
+                        'blockquote',
+                        'h2',
+                        'h3',
+                        'undo',
+                        'redo',
+                    ])
                     ->columnSpanFull(),
                 Select::make('type')
                     ->options([
@@ -56,9 +69,13 @@ class EventForm
                 TextInput::make('capacity')
                     ->label('Capacité')
                     ->numeric(),
-                TextInput::make('image_path')
-                    ->label('Image (URL)')
-                    ->url(),
+                FileUpload::make('image_path')
+                    ->label('Image')
+                    ->image()
+                    ->disk('public')
+                    ->directory('events')
+                    ->visibility('public')
+                    ->imageEditor(),
                 KeyValue::make('documents')
                     ->label('Documents')
                     ->columnSpanFull(),

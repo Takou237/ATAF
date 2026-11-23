@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Pages\Schemas;
 
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 
 class PageForm
@@ -21,9 +21,23 @@ class PageForm
                     ->required(),
                 TextInput::make('subtitle')
                     ->label('Sous-titre'),
-                Textarea::make('body')
-                    ->label('Contenu (HTML)')
-                    ->rows(12)
+                RichEditor::make('body')
+                    ->label('Contenu')
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'link',
+                        'bulletList',
+                        'orderedList',
+                        'blockquote',
+                        'h2',
+                        'h3',
+                        'attachFiles',
+                        'undo',
+                        'redo',
+                    ])
                     ->columnSpanFull(),
                 KeyValue::make('sections')
                     ->label('Sections structurées')

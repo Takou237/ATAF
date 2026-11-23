@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MediaItems\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -14,18 +15,38 @@ class MediaItemForm
         return $schema
             ->components([
                 TextInput::make('title')
+                    ->label('Titre')
                     ->required(),
-                TextInput::make('type')
+                Select::make('type')
+                    ->options([
+                        'photo' => 'Photo',
+                        'video' => 'Vidéo',
+                    ])
                     ->required()
                     ->default('photo'),
                 TextInput::make('url')
+                    ->label('URL externe (vidéo, lien)')
                     ->url(),
-                TextInput::make('file_path'),
-                TextInput::make('thumbnail_path'),
+                FileUpload::make('file_path')
+                    ->label('Fichier')
+                    ->disk('public')
+                    ->directory('media')
+                    ->visibility('public'),
+                FileUpload::make('thumbnail_path')
+                    ->label('Miniature')
+                    ->image()
+                    ->disk('public')
+                    ->directory('media/thumbnails')
+                    ->visibility('public'),
                 Select::make('event_id')
-                    ->relationship('event', 'title'),
-                DatePicker::make('published_on'),
+                    ->label('Événement lié')
+                    ->relationship('event', 'title')
+                    ->searchable()
+                    ->preload(),
+                DatePicker::make('published_on')
+                    ->label('Publié le'),
                 TextInput::make('position')
+                    ->label('Ordre')
                     ->required()
                     ->numeric()
                     ->default(0),

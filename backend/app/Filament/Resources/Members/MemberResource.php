@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Members;
 use App\Filament\Resources\Members\Pages\CreateMember;
 use App\Filament\Resources\Members\Pages\EditMember;
 use App\Filament\Resources\Members\Pages\ListMembers;
+use App\Filament\Resources\Members\RelationManagers\ContactsRelationManager;
+use App\Filament\Resources\Members\RelationManagers\ProfilesRelationManager;
 use App\Filament\Resources\Members\Schemas\MemberForm;
 use App\Filament\Resources\Members\Tables\MembersTable;
 use App\Models\Member;
@@ -43,7 +45,8 @@ class MemberResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ContactsRelationManager::class,
+            ProfilesRelationManager::class,
         ];
     }
 

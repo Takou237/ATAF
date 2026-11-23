@@ -169,31 +169,31 @@ Base : `http://localhost:8000/api`
 - [ ] Activité récente (Activity Log)
 
 ### 5.2 Contenus
-- [ ] Éditeur riche (Tiptap / RichEditor Filament) pour `news.body` et `pages.body`
-- [ ] Upload d'images via Spatie Media Library (remplacer les champs URL)
-- [ ] Aperçu avant publication, brouillons, planification (`published_at`)
+- [x] Éditeur riche (RichEditor Filament) pour `news.body`, `pages.body` et `events.description`
+- [x] Upload d'images/PDF via `FileUpload` (disque `public`, `storage:link` requis) pour actualités, événements, logos, médias
+- [ ] Aperçu avant publication, brouillons, planification (`published_at` — statuts et date déjà présents, aperçu à ajouter)
 - [ ] Gestion des étiquettes et catégories avec compteurs
 - [ ] Duplication d'articles / événements
-- [ ] Corbeille et restauration (SoftDeletes déjà sur News et Member)
+- [x] Corbeille et restauration (SoftDeletes déjà sur News et Member)
 
 ### 5.3 Membres & agréments
-- [ ] Relations Filament : contacts, profils utilisateurs sur la fiche membre
-- [ ] Workflow de demande d'adhésion (pending → review → approved/rejected) + notes admin
-- [ ] Workflow de demande d'agrément + génération du numéro d'agrément
-- [ ] Import/export CSV des membres et agences
-- [ ] Historique des vérifications d'agrément (`agency_verifications`)
+- [x] Relations Filament : contacts, profils utilisateurs sur la fiche membre
+- [x] Workflow de demande d'adhésion (pending → review → approved/rejected) + notes admin + création du membre à l'approbation
+- [x] Workflow de demande d'agrément + génération automatique du numéro (`ATAF-AAAA-NNNN`) + création de l'agence
+- [x] Export CSV des membres et agences (import CSV à ajouter)
+- [x] Historique des vérifications d'agrément (`agency_verifications`, ressource en lecture seule)
 - [ ] Attestation PDF d'agrément
 
 ### 5.4 Événements
-- [ ] Relation managers : programme, intervenants, inscriptions
-- [ ] Export des inscrits (CSV/Excel)
+- [x] Relation managers : programme, intervenants, inscriptions
+- [x] Export des inscrits (CSV)
 - [ ] Badges / attestations PDF
 - [ ] Envoi d'e-mails de confirmation et de rappel
-- [ ] Gestion de la capacité et liste d'attente
+- [ ] Gestion de la capacité et liste d'attente (statut « liste d'attente » présent, contrôle de capacité à ajouter)
 
 ### 5.5 Communication
-- [ ] Boîte de réception des messages de contact (statuts : nouveau, en cours, traité, spam), assignation
-- [ ] Réponse par e-mail depuis l'admin
+- [x] Boîte de réception des messages de contact (statuts : nouveau, en cours, traité, spam), assignation
+- [x] Réponse par e-mail depuis l'admin (via `Mail` ; SMTP réel à configurer en 6.4)
 - [ ] Campagnes newsletter (éditeur + envoi via queue) et statistiques
 - [ ] Modèles d'e-mails personnalisés (confirmation, bienvenue, relance)
 
@@ -250,17 +250,17 @@ Base : `http://localhost:8000/api`
 
 ## 7. Roadmap priorisée
 
-### P0 — Rendre le site vivant
-1. Client API + branchement des pages publiques
-2. Formulaires connectés
-3. Vérificateur d'agrément réel
-4. Mots de passe et secrets sécurisés
+### P0 — Rendre le site vivant (✅ terminé, sauf item 4)
+1. ✅ Client API + branchement des pages publiques
+2. ✅ Formulaires connectés
+3. ✅ Vérificateur d'agrément réel
+4. ⏳ Mots de passe et secrets sécurisés (voir 6.2)
 
-### P1 — Back-office utilisable au quotidien
-5. Éditeur riche + médias
-6. Workflows adhésion/agrément
-7. Relation managers événements + exports
-8. Boîte de réception contact
+### P1 — Back-office utilisable au quotidien (✅ terminé)
+5. ✅ Éditeur riche + médias
+6. ✅ Workflows adhésion/agrément
+7. ✅ Relation managers événements + exports
+8. ✅ Boîte de réception contact
 
 ### P2 — Qualité et ouverture
 9. Espace membre + documents privés
@@ -272,7 +272,12 @@ Base : `http://localhost:8000/api`
 
 ## 8. Notes & pièges
 
-- **Filament v5** : ressources dans `app/Filament/Resources/<Plural>/` avec `Schemas/*Form.php` et `Tables/*Table.php`. Les assets Filament sont ignorés par Git (`public/css/filament`, `public/js/filament`) → lancer `php artisan filament:assets` au déploiement.
+- **Filament v5** : ressources dans `app/Filament/Resources/<Plural>/` avec `Schemas/*Form.php`, `Tables/*Table.php` et `RelationManagers/`. Les assets Filament sont ignorés par Git (`public/css/filament`, `public/js/filament`) → lancer `php artisan filament:assets` au déploiement.
+- **Médias / uploads** : les formulaires utilisent `FileUpload` sur le disque `public` (dossiers `news`, `events`, `members`, `media`, `speakers`). Lancer `php artisan storage:link` en local et en production. L'API préfixe les chemins relatifs par `APP_URL/storage/..` côté frontend (`src/lib/api.ts`).
+- **Accès admin** : `User` implémente `FilamentUser::canAccessPanel()` ; seuls les rôles `super-admin`, `admin`, `communication`, `events`, `members` accèdent à `/admin`.
+- **Workflows** : `MembershipApplication::approve()` crée un membre ; `AgencyApplication::approve()` crée une agence avec un numéro `ATAF-AAAA-NNNN`. Les statuts sont `pending`, `review`, `approved`, `rejected`.
+- **Exports CSV** : helper `App\Filament\Support\CsvExport` (BOM UTF-8 + anti-injection formules) branché sur les inscriptions, membres et agences.
+- **Test de fumée admin** : `php artisan test --filter=AdminSmokeTest` vérifie que les pages Filament principales s'affichent (200).
 - **Sanctum** : l'API utilise des **tokens Bearer** (`/auth/login`). Pour une auth par cookies SPA, ajouter le middleware `EnsureFrontendRequestsAreStateful` et `withCredentials` côté front.
 - **Statuts agrément** : les données importées utilisent `Agréée` (FR) ; le scope `Agency::approved()` accepte `approved` et `Agréée`.
 - **Seed volumineux** : ~275 inscriptions de démo sont créées (participants factices `participantN@demo.ataf.fr`) → le seed prend ~35 s. Les supprimer avant production.

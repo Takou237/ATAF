@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class PagesTable
@@ -15,27 +16,44 @@ class PagesTable
         return $table
             ->columns([
                 TextColumn::make('slug')
+                    ->label('Identifiant')
                     ->searchable(),
                 TextColumn::make('title')
+                    ->label('Titre')
                     ->searchable(),
                 TextColumn::make('subtitle')
-                    ->searchable(),
+                    ->label('Sous-titre')
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('status')
-                    ->searchable(),
+                    ->label('Statut')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'draft' => 'Brouillon',
+                        'published' => 'Publiée',
+                        default => (string) $state,
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'published' => 'success',
+                        'draft' => 'warning',
+                        default => 'gray',
+                    }),
                 TextColumn::make('position')
+                    ->label('Ordre')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
             ])
+            ->defaultSort('position')
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->label('Statut')
+                    ->options([
+                        'draft' => 'Brouillon',
+                        'published' => 'Publiée',
+                    ]),
             ])
             ->recordActions([
                 EditAction::make(),

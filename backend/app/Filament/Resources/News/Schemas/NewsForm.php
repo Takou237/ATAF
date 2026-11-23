@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\News\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -30,17 +32,36 @@ class NewsForm
                     ->label('Chapeau')
                     ->rows(3)
                     ->columnSpanFull(),
-                Textarea::make('body')
+                RichEditor::make('body')
                     ->label('Contenu')
-                    ->rows(12)
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'link',
+                        'bulletList',
+                        'orderedList',
+                        'blockquote',
+                        'h2',
+                        'h3',
+                        'attachFiles',
+                        'undo',
+                        'redo',
+                    ])
                     ->columnSpanFull(),
-                TextInput::make('image_path')
-                    ->label('Image (URL)')
-                    ->url(),
+                FileUpload::make('image_path')
+                    ->label('Image de couverture')
+                    ->image()
+                    ->disk('public')
+                    ->directory('news')
+                    ->visibility('public')
+                    ->imageEditor(),
                 TextInput::make('author')
                     ->label('Auteur'),
                 DateTimePicker::make('published_at')
-                    ->label('Publié le'),
+                    ->label('Publié le')
+                    ->helperText('Laisser vide pour un brouillon non planifié.'),
                 Select::make('status')
                     ->options([
                         'draft' => 'Brouillon',

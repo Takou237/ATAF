@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\ContactMessages\Schemas;
 
+use App\Models\ContactMessage;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
@@ -13,22 +15,31 @@ class ContactMessageForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nom')
                     ->required(),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label('Adresse e-mail')
                     ->email()
                     ->required(),
-                TextInput::make('organisation'),
+                TextInput::make('organisation')
+                    ->label('Organisation'),
                 TextInput::make('subject')
+                    ->label('Sujet')
                     ->required(),
                 Textarea::make('message')
-                    ->required()
+                    ->label('Message reçu')
+                    ->rows(8)
                     ->columnSpanFull(),
-                TextInput::make('status')
+                Select::make('status')
+                    ->label('Statut')
+                    ->options(ContactMessage::STATUSES)
                     ->required()
                     ->default('new'),
-                TextInput::make('assigned_to')
-                    ->numeric(),
+                Select::make('assigned_to')
+                    ->label('Assigné à')
+                    ->relationship('assignedUser', 'name')
+                    ->searchable()
+                    ->preload(),
             ]);
     }
 }

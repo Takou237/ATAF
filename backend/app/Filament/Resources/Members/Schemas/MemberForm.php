@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Members\Schemas;
 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -19,9 +20,13 @@ class MemberForm
                     ->required(),
                 TextInput::make('slug')
                     ->helperText('Laisser vide pour générer automatiquement.'),
-                TextInput::make('logo_path')
-                    ->label('Logo (URL)')
-                    ->url(),
+                FileUpload::make('logo_path')
+                    ->label('Logo')
+                    ->image()
+                    ->disk('public')
+                    ->directory('members')
+                    ->visibility('public')
+                    ->imageEditor(),
                 Select::make('country_id')
                     ->label('Pays')
                     ->relationship('country', 'name')
