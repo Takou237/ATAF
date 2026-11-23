@@ -56,6 +56,10 @@ class PageForm
     {
         $visibleFor = fn (array $types): \Closure => fn (Get $get): bool => in_array($get('type'), $types, true);
 
+        // Les champs d’un élément sont un niveau plus bas que le bloc : le type
+        // du bloc se lit donc avec un chemin relatif (`../../type`).
+        $visibleInItems = fn (array $types): \Closure => fn (Get $get): bool => in_array($get('../../type'), $types, true);
+
         $allTypes = array_keys(self::BLOCK_TYPES);
 
         return $schema
@@ -154,36 +158,36 @@ class PageForm
                             ->schema([
                                 TextInput::make('icon')
                                     ->label('Icône (emoji ou texte)')
-                                    ->visible($visibleFor(['features'])),
+                                    ->visible($visibleInItems(['features'])),
                                 TextInput::make('value')
                                     ->label('Valeur')
-                                    ->visible($visibleFor(['stats'])),
+                                    ->visible($visibleInItems(['stats'])),
                                 TextInput::make('label')
                                     ->label('Libellé')
-                                    ->visible($visibleFor(['stats'])),
+                                    ->visible($visibleInItems(['stats'])),
                                 TextInput::make('year')
                                     ->label('Année')
-                                    ->visible($visibleFor(['timeline'])),
+                                    ->visible($visibleInItems(['timeline'])),
                                 TextInput::make('title')
                                     ->label('Titre')
-                                    ->visible($visibleFor(['hero', 'features', 'timeline', 'cards', 'list', 'contact'])),
+                                    ->visible($visibleInItems(['hero', 'features', 'timeline', 'cards', 'list', 'contact'])),
                                 TextInput::make('subtitle')
                                     ->label('Fonction / société')
-                                    ->visible($visibleFor(['cards', 'contact'])),
+                                    ->visible($visibleInItems(['cards', 'contact'])),
                                 Textarea::make('text')
                                     ->label('Texte')
                                     ->rows(3)
-                                    ->visible($visibleFor(['features', 'timeline', 'cards', 'list'])),
+                                    ->visible($visibleInItems(['features', 'timeline', 'cards', 'list'])),
                                 TextInput::make('url')
                                     ->label('Lien')
-                                    ->visible($visibleFor(['hero', 'cards', 'contact'])),
+                                    ->visible($visibleInItems(['hero', 'cards', 'contact'])),
                                 FileUpload::make('image')
                                     ->label('Image')
                                     ->image()
                                     ->disk('public')
                                     ->directory('pages/items')
                                     ->visibility('public')
-                                    ->visible($visibleFor(['cards'])),
+                                    ->visible($visibleInItems(['cards'])),
                             ]),
                     ]),
             ]);
