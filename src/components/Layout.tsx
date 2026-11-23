@@ -2,54 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logoImg from '../imports/LOGO-UPDATE-ATAG-1.png';
 import { subscribeNewsletter } from '../lib/api';
+import { parseNavigation } from '../lib/navigation';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import Honeypot from './Honeypot';
-
-const navItems = [
-  { label: "L'ATAF", path: '/ataf', children: [
-    { label: 'Présentation', path: '/ataf/presentation' },
-    { label: 'Missions', path: '/ataf/missions' },
-    { label: 'Histoire', path: '/ataf/histoire' },
-    { label: 'Gouvernance', path: '/ataf/gouvernance' },
-    { label: 'Organigramme', path: '/ataf/organigramme' },
-    { label: 'Bureau / CA', path: '/ataf/bureau' },
-  ]},
-  { label: 'Membres', path: '/membres', children: [
-    { label: 'Annuaire des membres', path: '/membres/annuaire' },
-    { label: 'Compagnies membres', path: '/membres/compagnies' },
-    { label: 'Partenaires', path: '/membres/partenaires' },
-    { label: 'Devenir membre', path: '/membres/adhesion' },
-  ]},
-  { label: 'Actualités', path: '/actualites', children: [
-    { label: 'Actualités ATAF', path: '/actualites/ataf' },
-    { label: 'Actualités membres', path: '/actualites/membres' },
-    { label: 'Communiqués', path: '/actualites/communiques' },
-    { label: 'Veille aéronautique', path: '/actualites/veille' },
-  ]},
-  { label: 'Événements', path: '/evenements', children: [
-    { label: 'Agenda', path: '/evenements/agenda' },
-    { label: 'Séminaires', path: '/evenements/seminaires' },
-    { label: 'Formations', path: '/evenements/formations' },
-    { label: 'Assemblées générales', path: '/evenements/assemblees' },
-    { label: 'Conférences', path: '/evenements/conferences' },
-  ]},
-  { label: 'Réglementation', path: '/reglementation', children: [
-    { label: 'Veille réglementaire', path: '/reglementation/veille' },
-    { label: 'Textes réglementaires', path: '/reglementation/textes' },
-    { label: 'Publications', path: '/reglementation/publications' },
-    { label: 'Notes et analyses', path: '/reglementation/notes' },
-  ]},
-  { label: 'Nos agences', path: '/agences', children: [
-    { label: 'Annuaire', path: '/agences/annuaire' },
-    { label: 'Vérifier un agrément', path: '/agences/verification' },
-    { label: 'Informations', path: '/agences/informations' },
-  ]},
-  { label: 'Ressources', path: '/ressources', children: [
-    { label: 'Centre documentaire', path: '/ressources/documents' },
-    { label: 'Publications', path: '/ressources/publications' },
-    { label: 'Médiathèque', path: '/ressources/mediatheque' },
-  ]},
-  { label: 'Contact', path: '/contact' },
-];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
@@ -60,6 +15,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [newsletterError, setNewsletterError] = useState<string | null>(null);
   const location = useLocation();
+  const settings = useSiteSettings();
+  const navItems = parseNavigation(settings.nav_items);
+  const contactEmail = settings.contact_email || 'sg@ataf.fr';
+  const contactAddress = settings.contact_address || 'Secrétariat Général ATAF, Montreuil, France';
+  const contactWebsite = settings.contact_website || 'https://www.ataf.fr';
+  const footerAbout =
+    settings.footer_about ||
+    'Association des Transporteurs Aériens Francophones, au service du transport aérien francophone depuis 1950.';
 
   const handleNewsletter = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -218,9 +181,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <div className="mb-4">
                 <img src={logoImg} alt="ATAF" className="h-8 w-auto brightness-0 invert" />
               </div>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Association des Transporteurs Aériens Francophones, au service du transport aérien francophone depuis 1950.
-              </p>
+              <p className="text-slate-400 text-sm leading-relaxed">{footerAbout}</p>
               <div className="mt-4 flex gap-3">
                 <a href="#" className="w-8 h-8 bg-white/10 rounded flex items-center justify-center hover:bg-[#3BAA35] transition-colors">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
@@ -249,10 +210,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div>
               <h4 className="font-semibold text-sm uppercase tracking-wider text-slate-300 mb-4" style={{ fontFamily: 'Instrument Serif, serif' }}>Contact</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li>Secrétariat Général ATAF</li>
-                <li>Montreuil, France</li>
-                <li className="pt-1"><a href="mailto:sg@ataf.fr" className="hover:text-white transition-colors">sg@ataf.fr</a></li>
-                <li><a href="https://www.ataf.fr" className="hover:text-white transition-colors">www.ataf.fr</a></li>
+                <li>{contactAddress}</li>
+                <li className="pt-1"><a href={`mailto:${contactEmail}`} className="hover:text-white transition-colors">{contactEmail}</a></li>
+                <li><a href={contactWebsite} className="hover:text-white transition-colors">{contactWebsite.replace(/^https?:\/\//, '')}</a></li>
               </ul>
               <div className="mt-5">
                 <p className="text-sm text-slate-400 mb-2">Newsletter ATAF</p>

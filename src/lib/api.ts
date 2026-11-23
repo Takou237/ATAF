@@ -301,7 +301,7 @@ const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1436491865332-7a61a109
 
 const API_ORIGIN = API_URL.replace(/\/api\/?$/, '');
 
-const mediaUrl = (value?: string | null): string => {
+export const mediaUrl = (value?: string | null): string => {
   if (!value) return '';
   if (/^https?:\/\//i.test(value) || value.startsWith('/')) return value;
   return `${API_ORIGIN}/storage/${value.replace(/^\/+/, '')}`;
@@ -709,6 +709,85 @@ export async function logout(): Promise<void> {
     // token may already be invalid
   } finally {
     setToken(null);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Pages éditoriales (CMS par blocs)                                   */
+/* ------------------------------------------------------------------ */
+
+export type PageBlockItem = {
+  title?: string;
+  subtitle?: string;
+  text?: string;
+  value?: string;
+  label?: string;
+  year?: string;
+  icon?: string;
+  url?: string;
+  image?: string;
+};
+
+export type PageBlock = {
+  type: string;
+  widget?: string;
+  filter?: string;
+  title?: string;
+  subtitle?: string;
+  text?: string;
+  rich_text?: string;
+  image?: string;
+  button_label?: string;
+  button_url?: string;
+  limit?: number | string;
+  items?: PageBlockItem[];
+};
+
+export type PageContent = {
+  slug: string;
+  title: string;
+  subtitle?: string | null;
+  body?: string | null;
+  sections?: PageBlock[] | null;
+};
+
+/** Contenu éditorial d'une page, entièrement piloté depuis le back-office. */
+export async function getPageContent(slug: string): Promise<PageContent | null> {
+  try {
+    return await request<PageContent>(`/pages/${encodeURIComponent(slug)}`);
+  } catch (error) {
+    console.warn(`[ATAF API] page « ${slug} » indisponible.`, error);
+    return null;
+  }
+}
+
+export type MediaGalleryItem = {
+  id: number;
+  title: string;
+  type: string;
+  src: string;
+  url: string;
+};
+
+/** Photos et vidéos de la médiathèque, gérées depuis /admin. */
+export async function getMedia(): Promise<MediaGalleryItem[]> {
+  const items = await request<Array<Record<string, unknown>>>(`/media`);
+
+  return items.map((item, index) => ({
+    id: Number(item.id ?? index),
+    title: str(item.title),
+    type: str(item.type) || 'photo',
+    src: mediaUrl(str(item.thumbnail_path) || str(item.file_path) || str(item.url)),
+    url: str(item.url),
+  }));
+}
+
+export async function getSiteSettings(): Promise<Record<string, string>> {
+  try {
+    return await request<Record<string, string>>('/settings');
+  } catch (error) {
+    console.warn('[ATAF API] réglages du site indisponibles.', error);
+    return {};
   }
 }
 

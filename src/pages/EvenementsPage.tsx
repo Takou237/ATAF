@@ -3,41 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { getEvent, getEvents, registerToEvent, type EventItem, type EventProgramItem } from '../lib/api';
 import { useApi } from '../hooks/useApi';
 import ApiErrorNotice from '../components/ApiErrorNotice';
+import CmsPage from '../components/CmsPage';
 import Honeypot from '../components/Honeypot';
-
-const PageHero = ({ title, subtitle, breadcrumb }: { title: string; subtitle?: string; breadcrumb: string }) => (
-  <div className="bg-[#1A4F8A] text-white py-14">
-    <div className="max-w-7xl mx-auto px-6">
-      <div className="text-blue-300 text-sm mb-3">
-        <Link to="/" className="hover:text-white">Accueil</Link> / {breadcrumb}
-      </div>
-      <h1 className="text-4xl font-bold" style={{ fontFamily: 'Instrument Serif, serif' }}>{title}</h1>
-      {subtitle && <p className="text-blue-200 mt-2">{subtitle}</p>}
-    </div>
-  </div>
-);
-
-const subNav = [
-  { label: 'Agenda', path: '/evenements/agenda' },
-  { label: 'Séminaires', path: '/evenements/seminaires' },
-  { label: 'Formations', path: '/evenements/formations' },
-  { label: 'Assemblées générales', path: '/evenements/assemblees' },
-  { label: 'Conférences', path: '/evenements/conferences' },
-];
-
-function SubNav({ current }: { current: string }) {
-  return (
-    <div className="border-b border-slate-200 bg-white sticky top-16 z-30">
-      <div className="max-w-7xl mx-auto px-6 flex gap-0 overflow-x-auto">
-        {subNav.map((item) => (
-          <Link key={item.path} to={item.path} className={`px-5 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${current === item.label ? 'border-[#1A4F8A] text-[#1A4F8A]' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
-            {item.label}
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const statusColors: Record<string, string> = {
   Ouvert: 'bg-green-50 text-green-600',
@@ -45,40 +12,6 @@ const statusColors: Record<string, string> = {
   Terminé: 'bg-slate-100 text-slate-500',
   Annulé: 'bg-red-50 text-red-500',
 };
-
-function EventCard({ ev }: { ev: EventItem }) {
-  const d = new Date(ev.date);
-  return (
-    <Link to={`/evenements/${ev.id}`} className="group bg-white border border-slate-100 rounded-xl overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
-      <div className="bg-[#1A4F8A] px-5 py-4 flex items-center gap-4">
-        <div className="text-center shrink-0">
-          <div className="text-3xl font-bold text-white leading-none">{d.getDate()}</div>
-          <div className="text-blue-200 text-xs uppercase">{d.toLocaleDateString('fr-FR', { month: 'short' })}</div>
-          <div className="text-blue-300 text-xs">{d.getFullYear()}</div>
-        </div>
-        <div>
-          <span className="text-xs text-blue-200 bg-white/10 px-2 py-0.5 rounded-full">{ev.type}</span>
-          <h3 className="text-white font-semibold mt-1 leading-snug group-hover:text-[#4DC247] transition-colors">{ev.title}</h3>
-        </div>
-      </div>
-      <div className="p-5 flex-1 flex flex-col">
-        <div className="flex items-center gap-2 text-slate-500 text-sm mb-1">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
-          {ev.location}
-        </div>
-        <div className="flex items-center gap-2 text-slate-500 text-sm mb-3">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          {ev.time}
-        </div>
-        <p className="text-sm text-slate-500 flex-1 line-clamp-2">{ev.description}</p>
-        <div className="mt-4 flex items-center justify-between">
-          <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusColors[ev.status]}`}>{ev.status}</span>
-          <div className="text-xs text-slate-400">{ev.registered}/{ev.maxParticipants} inscrits</div>
-        </div>
-      </div>
-    </Link>
-  );
-}
 
 const defaultProgram: EventProgramItem[] = [
   { time: '09:00', title: 'Accueil et enregistrement des participants' },
@@ -260,57 +193,11 @@ function EventDetail({ id }: { id: number }) {
   );
 }
 
-function EventList({ type, title, navLabel }: { type?: string; title: string; navLabel: string }) {
-  const { data: eventsData, loading, error, reload } = useApi(() => getEvents({ type }), [type]);
-  const events = eventsData ?? [];
-  const filtered = type ? events.filter((e) => e.type === type) : events;
-  return (
-    <>
-      <PageHero title={title} breadcrumb={`Événements / ${navLabel}`} />
-      <SubNav current={navLabel} />
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-6" />}
-        {loading ? (
-          <p className="text-slate-400 text-center py-10">Chargement des événements…</p>
-        ) : filtered.length === 0 ? (
-          <p className="text-slate-400 text-center py-10">Aucun événement prévu pour le moment.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((ev) => <EventCard key={ev.id} ev={ev} />)}
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
-
 export default function EvenementsPage() {
   const { section } = useParams<{ section?: string }>();
-  const { data: eventsData, loading, error, reload } = useApi(getEvents);
-  const events = eventsData ?? [];
 
   const numericId = section && !isNaN(parseInt(section)) ? parseInt(section) : null;
   if (numericId) return <EventDetail id={numericId} />;
 
-  if (section === 'seminaires') return <EventList type="Séminaire" title="Séminaires" navLabel="Séminaires" />;
-  if (section === 'formations') return <EventList type="Formation" title="Formations" navLabel="Formations" />;
-  if (section === 'assemblees') return <EventList type="Assemblée générale" title="Assemblées générales" navLabel="Assemblées générales" />;
-  if (section === 'conferences') return <EventList type="Conférence" title="Conférences" navLabel="Conférences" />;
-
-  return (
-    <>
-      <PageHero title="Agenda des événements" subtitle="Séminaires, formations, assemblées et conférences ATAF" breadcrumb="Événements / Agenda" />
-      <SubNav current="Agenda" />
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-6" />}
-        {loading ? (
-          <p className="text-slate-400 text-center py-10">Chargement des événements…</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((ev) => <EventCard key={ev.id} ev={ev} />)}
-          </div>
-        )}
-      </div>
-    </>
-  );
+  return <CmsPage slug={`evenements-${section ?? 'agenda'}`} prefix="/evenements" />;
 }

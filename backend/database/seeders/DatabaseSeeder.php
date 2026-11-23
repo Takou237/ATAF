@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             RbacSeeder::class,
             ReferenceSeeder::class,
             FrontendDataSeeder::class,
+            PageContentSeeder::class,
             AdminUserSeeder::class,
         ]);
     }
