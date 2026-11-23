@@ -1,5 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import type { ReactNode } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 import HomePage from './pages/HomePage';
 import AtafPage from './pages/AtafPage';
 import MembresPage from './pages/MembresPage';
@@ -13,11 +15,22 @@ import EspaceMembresPage from './pages/EspaceMembresPage';
 import MotDePasseOubliePage from './pages/MotDePasseOubliePage';
 import ReinitialiserMotDePassePage from './pages/ReinitialiserMotDePassePage';
 
+/**
+ * Isole chaque page : une erreur de rendu n'affiche plus un écran blanc mais un
+ * message, et le compteur `key` réinitialise l'erreur dès qu'on change de page.
+ */
+function PageBoundary({ children }: { children: ReactNode }) {
+  const location = useLocation();
+
+  return <ErrorBoundary key={location.pathname}>{children}</ErrorBoundary>;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <Layout>
-        <Routes>
+        <PageBoundary>
+          <Routes>
           <Route path="/" element={<HomePage />} />
 
           {/* L'ATAF */}
@@ -58,7 +71,8 @@ export default function App() {
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+          </Routes>
+        </PageBoundary>
       </Layout>
     </BrowserRouter>
   );

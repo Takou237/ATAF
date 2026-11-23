@@ -52,13 +52,13 @@ function Annuaire() {
   const members = membersData ?? [];
   const allMembers = allMembersData ?? [];
 
-  const countries = [...new Set(allMembers.map((m) => m.country))].sort();
-  const categories = [...new Set(allMembers.map((m) => m.category))].sort();
+  const countries = [...new Set(allMembers.map((m) => m.country).filter(Boolean))].sort();
+  const categories = [...new Set(allMembers.map((m) => m.category).filter(Boolean))].sort();
 
   const filtered = members.filter((m) => {
-    const s = search.toLowerCase();
+    const s = search.trim().toLowerCase();
     return (
-      (!s || m.name.toLowerCase().includes(s) || m.city.toLowerCase().includes(s)) &&
+      (!s || (m.name ?? '').toLowerCase().includes(s) || (m.city ?? '').toLowerCase().includes(s)) &&
       (!country || m.country === country) &&
       (!category || m.category === category)
     );
@@ -97,16 +97,16 @@ function Annuaire() {
             <div key={m.id} className="bg-white border border-slate-100 rounded-xl p-5 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between mb-3">
                 <div className="w-10 h-10 rounded-full bg-[#1A4F8A]/10 flex items-center justify-center text-[#1A4F8A] font-bold text-sm">
-                  {m.name.charAt(0)}
+                  {(m.name || '?').charAt(0)}
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full ${m.category === 'Compagnie aérienne' ? 'bg-blue-50 text-blue-600' : m.category === 'Partenaire' ? 'bg-green-50 text-green-600' : 'bg-purple-50 text-purple-600'}`}>
-                  {m.category}
+                  {m.category || 'Membre'}
                 </span>
               </div>
               <h3 className="font-semibold text-[#0D2B4E] mb-1">{m.name}</h3>
-              <p className="text-slate-400 text-sm">{m.city}, {m.country}</p>
+              <p className="text-slate-400 text-sm">{[m.city, m.country].filter(Boolean).join(', ')}</p>
               <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-                <span>Membre depuis {m.since}</span>
+                <span>Membre depuis {m.since || '—'}</span>
                 {m.web && <a href={`https://${m.web}`} target="_blank" rel="noreferrer" className="text-[#1A4F8A] hover:underline">{m.web}</a>}
               </div>
             </div>
@@ -171,12 +171,12 @@ function Partenaires() {
           {partners.map((p) => (
             <div key={p.id} className="border border-slate-100 rounded-xl p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-[#3BAA35]/10 flex items-center justify-center text-[#3BAA35] font-bold">{p.name.charAt(0)}</div>
-                <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">{p.category}</span>
+                <div className="w-10 h-10 rounded-full bg-[#3BAA35]/10 flex items-center justify-center text-[#3BAA35] font-bold">{(p.name || '?').charAt(0)}</div>
+                <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">{p.category || 'Membre'}</span>
               </div>
               <h3 className="font-semibold text-[#0D2B4E] mb-1">{p.name}</h3>
-              <p className="text-slate-400 text-sm">{p.city}, {p.country}</p>
-              <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400">Membre depuis {p.since}</div>
+              <p className="text-slate-400 text-sm">{[p.city, p.country].filter(Boolean).join(', ')}</p>
+              <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400">Membre depuis {p.since || '—'}</div>
             </div>
           ))}
         </div>

@@ -50,11 +50,14 @@ function Annuaire() {
   const agencies = agenciesData ?? [];
   const allAgencies = allAgenciesData ?? [];
 
-  const countries = [...new Set(allAgencies.map((a) => a.country))].sort();
-  const filtered = agencies.filter((a) =>
-    (!search || a.name.toLowerCase().includes(search.toLowerCase()) || a.code.includes(search)) &&
-    (!country || a.country === country)
-  );
+  const countries = [...new Set(allAgencies.map((a) => a.country).filter(Boolean))].sort();
+  const filtered = agencies.filter((a) => {
+    const s = search.trim().toLowerCase();
+    return (
+      (!s || (a.name ?? '').toLowerCase().includes(s) || (a.code ?? '').toLowerCase().includes(s)) &&
+      (!country || a.country === country)
+    );
+  });
 
   return (
     <>
@@ -84,7 +87,7 @@ function Annuaire() {
               {filtered.map((a, i) => (
                 <tr key={a.id} className={`border-b border-slate-100 hover:bg-blue-50/30 transition-colors ${i % 2 === 0 ? '' : 'bg-slate-50/50'}`}>
                   <td className="py-3 px-5 font-medium text-[#0D2B4E]">{a.name}</td>
-                  <td className="py-3 px-5 font-mono text-xs text-[#1A4F8A] bg-blue-50/50">{a.code}</td>
+                  <td className="py-3 px-5 font-mono text-xs text-[#1A4F8A] bg-blue-50/50">{a.code || '—'}</td>
                   <td className="py-3 px-5 text-slate-500">{a.country}</td>
                   <td className="py-3 px-5 text-slate-500">{a.city}</td>
                   <td className="py-3 px-5">

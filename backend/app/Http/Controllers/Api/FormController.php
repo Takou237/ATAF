@@ -23,7 +23,7 @@ class FormController extends Controller
             'organisation' => ['nullable', 'string', 'max:255'],
             'subject' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
-            'website' => ['prohibited'],
+            'website' => ['nullable', 'string', 'max:255'],
         ]);
 
         unset($data['website']);
@@ -39,7 +39,7 @@ class FormController extends Controller
             'email' => ['required', 'email', 'max:255'],
             'name' => ['nullable', 'string', 'max:255'],
             'list' => ['nullable', 'string', 'max:64'],
-            'website' => ['prohibited'],
+            'website' => ['nullable', 'string', 'max:255'],
         ]);
 
         unset($data['website']);
@@ -84,7 +84,7 @@ class FormController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
             'participation_type' => ['nullable', 'string', 'max:64'],
             'special_needs' => ['nullable', 'string', 'max:1000'],
-            'website' => ['prohibited'],
+            'website' => ['nullable', 'string', 'max:255'],
         ]);
 
         unset($data['website']);
@@ -114,7 +114,7 @@ class FormController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
             'category' => ['nullable', 'string', 'max:255'],
             'message' => ['nullable', 'string', 'max:5000'],
-            'website' => ['prohibited'],
+            'website' => ['nullable', 'string', 'max:255'],
         ]);
 
         unset($data['website']);
@@ -134,7 +134,7 @@ class FormController extends Controller
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'message' => ['nullable', 'string', 'max:5000'],
-            'website' => ['prohibited'],
+            'website' => ['nullable', 'string', 'max:255'],
         ]);
 
         unset($data['website']);

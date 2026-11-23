@@ -89,7 +89,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" translate="no">
       {/* Top bar */}
       <div className="bg-[#0D2B4E] text-white text-xs py-2 px-6 flex items-center justify-between">
         <span className="hidden sm:inline">Association des Transporteurs Aériens Francophones — fondée en 1950</span>

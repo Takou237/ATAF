@@ -299,8 +299,23 @@ type ApiDocument = {
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&h=500&fit=crop';
 
-const dateOnly = (value?: string | null): string => (value ? value.slice(0, 10) : '');
-const stripProtocol = (value?: string | null): string => (value ?? '').replace(/^https?:\/\//, '');
+const API_ORIGIN = API_URL.replace(/\/api\/?$/, '');
+
+const mediaUrl = (value?: string | null): string => {
+  if (!value) return '';
+  if (/^https?:\/\//i.test(value) || value.startsWith('/')) return value;
+  return `${API_ORIGIN}/storage/${value.replace(/^\/+/, '')}`;
+};
+
+const dateOnly = (value?: string | null): string => (value ? String(value).slice(0, 10) : '');
+const stripProtocol = (value?: string | null): string => String(value ?? '').replace(/^https?:\/\//, '');
+
+/**
+ * L'API peut renvoyer `null` sur des champs facultatifs. On normalise tout en
+ * chaîne pour que les `.toLowerCase()`, `.includes()`, `.charAt()` des pages ne
+ * puissent jamais lever d'exception (qui rendrait la page entièrement blanche).
+ */
+const str = (value: unknown): string => (value === null || value === undefined ? '' : String(value));
 
 function toQuery(params: ListParams = {}): string {
   const query = new URLSearchParams();
@@ -338,64 +353,64 @@ function paginateLocally<T>(items: T[], params: ListParams, perPage: number): Pa
 
 export const mapNews = (item: ApiNews): NewsItem => ({
   id: item.id,
-  title: item.title,
+  title: str(item.title),
   date: dateOnly(item.published_at),
-  category: item.category?.name ?? 'Actualité',
-  summary: item.excerpt ?? '',
-  image: item.image_path || FALLBACK_IMAGE,
+  category: str(item.category?.name) || 'Actualité',
+  summary: str(item.excerpt),
+  image: mediaUrl(item.image_path) || FALLBACK_IMAGE,
   body: item.body ?? undefined,
   isMembersOnly: item.is_members_only ?? false,
 });
 
 export const mapEvent = (item: ApiEvent): EventItem => ({
   id: item.id,
-  slug: item.slug,
-  title: item.title,
+  slug: str(item.slug) || String(item.id),
+  title: str(item.title),
   date: dateOnly(item.starts_at),
-  time: item.time ?? (item.starts_at ? new Date(item.starts_at).toTimeString().slice(0, 5) : ''),
-  location: item.location ?? '',
-  type: item.type ?? 'Événement',
-  status: item.status ?? 'Ouvert',
-  description: item.description ?? '',
+  time: str(item.time) || (item.starts_at ? new Date(item.starts_at).toTimeString().slice(0, 5) : ''),
+  location: str(item.location),
+  type: str(item.type) || 'Événement',
+  status: str(item.status) || 'Ouvert',
+  description: str(item.description),
   maxParticipants: item.capacity ?? 0,
   registered: item.registrations_count ?? 0,
 });
 
 export const mapMember = (item: ApiMember): MemberItem => ({
   id: item.id,
-  name: item.name,
-  country: item.country?.name ?? '',
-  city: item.city ?? '',
-  category: item.category ?? '',
+  name: str(item.name),
+  country: str(item.country?.name),
+  city: str(item.city),
+  category: str(item.category),
   since: item.joined_year ?? 0,
-  logo: item.logo_path ?? '',
+  logo: mediaUrl(item.logo_path),
   web: stripProtocol(item.website),
-  email: item.email ?? '',
-  phone: item.phone ?? '',
+  email: str(item.email),
+  phone: str(item.phone),
 });
 
 export const mapAgency = (item: ApiAgency): AgencyItem => ({
   id: item.id,
-  name: item.name,
-  code: item.agreement_number,
-  country: item.country ?? '',
-  city: item.city ?? '',
-  status: item.status ?? '',
+  name: str(item.name),
+  code: str(item.agreement_number),
+  country: str(item.country),
+  city: str(item.city),
+  status: str(item.status),
 });
 
 export const mapRegulation = (item: ApiRegulation): RegulationItem => ({
   id: item.id,
-  title: item.title,
+  title: str(item.title),
   date: dateOnly(item.published_on),
-  category: item.category ?? '',
-  type: item.type ?? '',
-  summary: item.summary ?? '',
+  category: str(item.category),
+  type: str(item.type),
+  summary: str(item.summary),
 });
 
 export const mapPublication = (item: ApiPublication): PublicationItem => ({
   id: item.id,
-  title: item.title,
-  type: item.type ?? '',
+  title: str(item.title),
+  type: str(item.type),
   date: dateOnly(item.published_on),
   pages: item.pages ?? 0,
 });
@@ -459,7 +474,7 @@ export async function getEvent(slug: string): Promise<EventItem & { programs: Ev
   const item = await request<ApiEvent>(`/events/${slug}`);
   return {
     ...mapEvent(item),
-    programs: (item.programs ?? []).map((program) => ({ time: program.time, title: program.title })),
+    programs: (item.programs ?? []).map((program) => ({ time: str(program.time), title: str(program.title) })),
   };
 }
 
@@ -497,9 +512,9 @@ export function getPublications(params: ListParams = {}): Promise<PublicationIte
 
 const mapDocument = (item: ApiDocument): DocumentItem => ({
   id: item.id,
-  code: item.category ?? item.type ?? 'Document',
-  title: item.title,
-  org: item.type ?? 'ATAF',
+  code: str(item.category) || str(item.type) || 'Document',
+  title: str(item.title),
+  org: str(item.type) || 'ATAF',
   date: dateOnly(item.published_on),
   downloadUrl: item.file_path
     ? `${API_URL}/documents/${encodeURIComponent(item.slug)}/download`
