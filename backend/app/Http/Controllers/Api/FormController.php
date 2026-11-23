@@ -39,7 +39,10 @@ class FormController extends Controller
             'email' => ['required', 'email', 'max:255'],
             'name' => ['nullable', 'string', 'max:255'],
             'list' => ['nullable', 'string', 'max:64'],
+            'website' => ['prohibited'],
         ]);
+
+        unset($data['website']);
 
         $list = NewsletterList::firstOrCreate(
             ['slug' => $data['list'] ?? 'general'],
@@ -81,7 +84,10 @@ class FormController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
             'participation_type' => ['nullable', 'string', 'max:64'],
             'special_needs' => ['nullable', 'string', 'max:1000'],
+            'website' => ['prohibited'],
         ]);
+
+        unset($data['website']);
 
         if ($event->capacity !== null && $event->registrations()->count() >= $event->capacity) {
             return response()->json(['message' => 'Cet événement est complet.'], 422);
@@ -108,7 +114,10 @@ class FormController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
             'category' => ['nullable', 'string', 'max:255'],
             'message' => ['nullable', 'string', 'max:5000'],
+            'website' => ['prohibited'],
         ]);
+
+        unset($data['website']);
 
         MembershipApplication::create($data + ['status' => 'pending']);
 
@@ -125,7 +134,10 @@ class FormController extends Controller
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'message' => ['nullable', 'string', 'max:5000'],
+            'website' => ['prohibited'],
         ]);
+
+        unset($data['website']);
 
         AgencyApplication::create($data + ['status' => 'pending']);
 

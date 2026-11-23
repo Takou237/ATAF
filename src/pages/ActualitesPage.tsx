@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getNews, type NewsItem } from '../lib/api';
+import { getNews, getNewsPage, type NewsItem } from '../lib/api';
 import { useApi } from '../hooks/useApi';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import ApiErrorNotice from '../components/ApiErrorNotice';
 
 const PageHero = ({ title, subtitle, breadcrumb }: { title: string; subtitle?: string; breadcrumb: string }) => (
   <div className="bg-[#1A4F8A] text-white py-14">
@@ -36,9 +38,75 @@ function SubNav({ current }: { current: string }) {
   );
 }
 
-function NewsGrid({ items, title, subtitle, breadcrumb, navLabel }: { items: NewsItem[]; title: string; subtitle?: string; breadcrumb: string; navLabel: string }) {
+function NewsGrid({ category, title, subtitle, breadcrumb, navLabel }: { category?: string; title: string; subtitle?: string; breadcrumb: string; navLabel: string }) {
   const [search, setSearch] = useState('');
-  const filtered = items.filter((n) => !search || n.title.toLowerCase().includes(search.toLowerCase()));
+  const debouncedSearch = useDebouncedValue(search);
+  const [items, setItems] = useState<NewsItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadFirstPage = () => {
+    setLoading(true);
+    setError(null);
+    setPage(1);
+
+    return getNewsPage({ page: 1, perPage: 9, search: debouncedSearch, category })
+      .then((result) => {
+        setItems(result.data);
+        setLastPage(result.lastPage);
+        setTotal(result.total);
+      })
+      .catch((reason: unknown) => {
+        setError(reason instanceof Error ? reason.message : 'Impossible de charger les actualités.');
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(null);
+    setPage(1);
+
+    getNewsPage({ page: 1, perPage: 9, search: debouncedSearch, category })
+      .then((result) => {
+        if (!active) return;
+        setItems(result.data);
+        setLastPage(result.lastPage);
+        setTotal(result.total);
+      })
+      .catch((reason: unknown) => {
+        if (!active) return;
+        setError(reason instanceof Error ? reason.message : 'Impossible de charger les actualités.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [debouncedSearch, category]);
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const result = await getNewsPage({ page: nextPage, perPage: 9, search: debouncedSearch, category });
+      setItems((previous) => [...previous, ...result.data]);
+      setPage(nextPage);
+      setLastPage(result.lastPage);
+      setTotal(result.total);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Impossible de charger la suite.');
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   return (
     <>
@@ -54,26 +122,44 @@ function NewsGrid({ items, title, subtitle, breadcrumb, navLabel }: { items: New
             className="w-full md:w-80 px-4 py-2.5 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-[#1A4F8A]"
           />
         </div>
-        {filtered.length === 0 ? (
+        {error && <ApiErrorNotice message={error} onRetry={loadFirstPage} className="mb-6" />}
+        {loading ? (
+          <p className="text-slate-400 text-center py-10">Chargement des actualités…</p>
+        ) : items.length === 0 ? (
           <p className="text-slate-400 text-center py-10">Aucune actualité correspondante.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((item) => (
-              <Link key={item.id} to={`/actualites/${item.id}`} className="group bg-white border border-slate-100 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-[16/9] overflow-hidden bg-slate-100">
-                  <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-medium text-[#3BAA35] bg-[#3BAA35]/10 px-2 py-0.5 rounded-full">{item.category}</span>
-                    <span className="text-xs text-slate-400">{new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+          <>
+            <p className="text-slate-500 text-sm mb-5">{total} actualité{total > 1 ? 's' : ''}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {items.map((item) => (
+                <Link key={item.id} to={`/actualites/${item.id}`} className="group bg-white border border-slate-100 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="aspect-[16/9] overflow-hidden bg-slate-100">
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
-                  <h3 className="font-semibold text-slate-800 leading-snug group-hover:text-[#1A4F8A] transition-colors line-clamp-2">{item.title}</h3>
-                  <p className="text-sm text-slate-500 mt-2 line-clamp-3">{item.summary}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-medium text-[#3BAA35] bg-[#3BAA35]/10 px-2 py-0.5 rounded-full">{item.category}</span>
+                      <span className="text-xs text-slate-400">{new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    </div>
+                    <h3 className="font-semibold text-slate-800 leading-snug group-hover:text-[#1A4F8A] transition-colors line-clamp-2">{item.title}</h3>
+                    <p className="text-sm text-slate-500 mt-2 line-clamp-3">{item.summary}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            {page < lastPage && (
+              <div className="text-center mt-8">
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="px-6 py-3 border border-[#1A4F8A]/20 text-[#1A4F8A] rounded-md text-sm font-medium hover:bg-[#1A4F8A] hover:text-white transition-colors disabled:opacity-60"
+                >
+                  {loadingMore ? 'Chargement…' : 'Charger plus'}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </>
@@ -81,10 +167,17 @@ function NewsGrid({ items, title, subtitle, breadcrumb, navLabel }: { items: New
 }
 
 function NewsDetail({ id }: { id: number }) {
-  const { data: newsData, loading } = useApi(getNews);
+  const { data: newsData, loading, error, reload } = useApi(getNews);
   const news = newsData ?? [];
   const item = news.find((n) => n.id === id);
   if (loading) return <div className="p-20 text-center text-slate-400">Chargement de l'article…</div>;
+  if (error) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-16">
+        <ApiErrorNotice message={error} onRetry={reload} />
+      </div>
+    );
+  }
   if (!item) return <div className="p-20 text-center text-slate-400">Article non trouvé</div>;
   return (
     <>
@@ -186,18 +279,14 @@ function Communiques() {
 
 export default function ActualitesPage() {
   const { section } = useParams<{ section?: string }>();
-  const { data: newsData } = useApi(getNews);
-  const news = newsData ?? [];
 
   // section can be a numeric id for detail view
   const numericId = section && !isNaN(parseInt(section)) ? parseInt(section) : null;
   if (numericId) return <NewsDetail id={numericId} />;
 
-  const membresNews = news.filter((n) => n.category === 'Membres');
-
-  if (section === 'membres') return <NewsGrid items={membresNews} title="Actualités membres" breadcrumb="Actualités / Membres" navLabel="Actualités membres" />;
+  if (section === 'membres') return <NewsGrid category="Membres" title="Actualités membres" breadcrumb="Actualités / Membres" navLabel="Actualités membres" />;
   if (section === 'communiques') return <Communiques />;
   if (section === 'veille') return <VeilleAero />;
 
-  return <NewsGrid items={news} title="Actualités ATAF" subtitle="Toutes les actualités de l'association" breadcrumb="Actualités" navLabel="Actualités ATAF" />;
+  return <NewsGrid title="Actualités ATAF" subtitle="Toutes les actualités de l'association" breadcrumb="Actualités" navLabel="Actualités ATAF" />;
 }

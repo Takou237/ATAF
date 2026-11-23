@@ -97,6 +97,10 @@ Base : `http://localhost:8000/api`
 | POST | `/auth/login` | `email`, `password` → token Bearer |
 | GET | `/auth/me` | Profil (auth:sanctum) |
 | POST | `/auth/logout` | Révoque le token |
+| POST | `/auth/forgot-password` | Envoi du lien de réinitialisation (throttle 5/min) |
+| POST | `/auth/reset-password` | `token`, `email`, `password`, `password_confirmation` |
+
+> Les endpoints de liste acceptent `?search=`, `?page=`, `?per_page=` (pagination activée si `per_page` est fourni) ainsi que des filtres dédiés : `category`, `country`, `type`, `status`, `upcoming`, `members_only`.
 
 ---
 
@@ -106,10 +110,10 @@ Base : `http://localhost:8000/api`
 - [x] Créer `src/lib/api.ts` (fetch + gestion erreurs + Bearer token) + `src/hooks/useApi.ts`
 - [x] Remplacer les imports de `src/data/index.ts` par des appels API dans chaque page (fallback statique si API injoignable)
 - [x] États de chargement et d'erreur de base sur les pages branchées
-- [ ] Pagination ou « charger plus » sur Actualités et Ressources
-- [ ] Recherche et filtres côté serveur (membres par catégorie/pays, actualités par catégorie, événements par statut)
+- [x] Pagination ou « charger plus » sur Actualités et Ressources (`?page` + `?per_page`)
+- [x] Recherche et filtres côté serveur (membres par catégorie/pays, actualités par catégorie, événements par type/statut, documents, réglementations, agences)
 - [x] Connecter les formulaires (Contact, Newsletter, Événement, Adhésion, Agrément) avec messages de succès/erreur
-- [ ] Honeypot anti-spam côté front (le backend valide déjà le champ `website`)
+- [x] Honeypot anti-spam côté front (le backend valide déjà le champ `website`)
 - [x] Vérificateur d'agrément : appel `/agencies/verify/{num}` au lieu du tableau statique
 - [x] Espace membres : login/logout Sanctum réel + restauration de session via `/auth/me`
 
@@ -133,7 +137,7 @@ Base : `http://localhost:8000/api`
 - [ ] Test axe / Lighthouse ≥ 90
 
 ### 4.5 Espace membre
-- [ ] Page connexion / mot de passe oublié (Sanctum + email)
+- [x] Page connexion / mot de passe oublié (Sanctum + API `forgot-password`/`reset-password` ; envoi réel à configurer en 6.4)
 - [ ] Tableau de bord membre : profil, coordonnées, membres de l'entreprise
 - [ ] Documents réservés (`is_public = false`) avec téléchargement authentifié
 - [ ] Actualités « membres uniquement »

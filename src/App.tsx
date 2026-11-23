@@ -10,6 +10,8 @@ import AgencesPage from './pages/AgencesPage';
 import RessourcesPage from './pages/RessourcesPage';
 import ContactPage from './pages/ContactPage';
 import EspaceMembresPage from './pages/EspaceMembresPage';
+import MotDePasseOubliePage from './pages/MotDePasseOubliePage';
+import ReinitialiserMotDePassePage from './pages/ReinitialiserMotDePassePage';
 
 export default function App() {
   return (
@@ -51,6 +53,8 @@ export default function App() {
 
           {/* Espace membres */}
           <Route path="/espace-membres" element={<EspaceMembresPage />} />
+          <Route path="/espace-membres/mot-de-passe-oublie" element={<MotDePasseOubliePage />} />
+          <Route path="/espace-membres/reinitialiser" element={<ReinitialiserMotDePassePage />} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

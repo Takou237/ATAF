@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getEvents, getNews, getToken, login, logout, me, setToken, type AuthUser } from '../lib/api';
 import { useApi } from '../hooks/useApi';
+import ApiErrorNotice from '../components/ApiErrorNotice';
 
 function LoginForm({ onLogin }: { onLogin: (user: AuthUser) => void }) {
   const [email, setEmail] = useState('');
@@ -43,7 +44,7 @@ function LoginForm({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-sm font-medium text-slate-700">Mot de passe</label>
-                <a href="#" className="text-xs text-[#1A4F8A] hover:underline">Mot de passe oublié ?</a>
+                <Link to="/espace-membres/mot-de-passe-oublie" className="text-xs text-[#1A4F8A] hover:underline">Mot de passe oublié ?</Link>
               </div>
               <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-[#1A4F8A]" />
             </div>
@@ -69,8 +70,8 @@ function LoginForm({ onLogin }: { onLogin: (user: AuthUser) => void }) {
 
 function Dashboard({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('accueil');
-  const { data: eventsData } = useApi(getEvents);
-  const { data: newsData } = useApi(getNews);
+  const { data: eventsData, error: eventsError, reload: reloadEvents } = useApi(getEvents);
+  const { data: newsData, error: newsError, reload: reloadNews } = useApi(getNews);
   const events = eventsData ?? [];
   const news = newsData ?? [];
   const memberNews = news.filter((item) => item.isMembersOnly);
@@ -111,6 +112,12 @@ function Dashboard({ user, onLogout }: { user: AuthUser; onLogout: () => void })
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {(eventsError || newsError) && (
+          <div className="space-y-3 mb-6">
+            {eventsError && <ApiErrorNotice message={eventsError} onRetry={reloadEvents} />}
+            {newsError && <ApiErrorNotice message={newsError} onRetry={reloadNews} />}
+          </div>
+        )}
         {/* Tabs */}
         <div className="flex gap-0 border-b border-slate-200 mb-8 overflow-x-auto">
           {tabs.map((tab) => (

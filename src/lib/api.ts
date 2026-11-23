@@ -178,6 +178,34 @@ export type DocumentItem = {
   downloadUrl: string | null;
 };
 
+export type ListParams = {
+  search?: string;
+  page?: number;
+  perPage?: number;
+  category?: string;
+  country?: string;
+  type?: string;
+  status?: string;
+  upcoming?: boolean;
+  membersOnly?: boolean;
+};
+
+export type Paginated<T> = {
+  data: T[];
+  currentPage: number;
+  lastPage: number;
+  perPage: number;
+  total: number;
+};
+
+type ApiPaginator<T> = {
+  data: T[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
+
 export type AuthUser = {
   id: number;
   name: string;
@@ -274,6 +302,36 @@ const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1436491865332-7a61a109
 const dateOnly = (value?: string | null): string => (value ? value.slice(0, 10) : '');
 const stripProtocol = (value?: string | null): string => (value ?? '').replace(/^https?:\/\//, '');
 
+function toQuery(params: ListParams = {}): string {
+  const query = new URLSearchParams();
+
+  if (params.search) query.set('search', params.search);
+  if (params.page) query.set('page', String(params.page));
+  if (params.perPage) query.set('per_page', String(params.perPage));
+  if (params.category) query.set('category', params.category);
+  if (params.country) query.set('country', params.country);
+  if (params.type) query.set('type', params.type);
+  if (params.status) query.set('status', params.status);
+  if (params.upcoming) query.set('upcoming', '1');
+  if (params.membersOnly) query.set('members_only', '1');
+
+  const value = query.toString();
+  return value ? `?${value}` : '';
+}
+
+function paginateLocally<T>(items: T[], params: ListParams, perPage: number): Paginated<T> {
+  const page = Math.max(1, params.page ?? 1);
+  const start = (page - 1) * perPage;
+
+  return {
+    data: items.slice(start, start + perPage),
+    currentPage: page,
+    lastPage: Math.max(1, Math.ceil(items.length / perPage)),
+    perPage,
+    total: items.length,
+  };
+}
+
 /* ------------------------------------------------------------------ */
 /* Mappers                                                             */
 /* ------------------------------------------------------------------ */
@@ -355,17 +413,43 @@ async function withFallback<T>(loader: () => Promise<T>, fallback: T, label: str
   }
 }
 
-export function getNews(): Promise<NewsItem[]> {
+export function getNews(params: ListParams = {}): Promise<NewsItem[]> {
   return withFallback(
-    async () => (await request<ApiNews[]>('/news')).map(mapNews),
+    async () => (await request<ApiNews[]>(`/news${toQuery(params)}`)).map(mapNews),
     staticNews,
     'actualités',
   );
 }
 
-export function getEvents(): Promise<EventItem[]> {
+export async function getNewsPage(params: ListParams = {}): Promise<Paginated<NewsItem>> {
+  const perPage = params.perPage ?? 9;
+
+  try {
+    const payload = await request<ApiPaginator<ApiNews>>(
+      `/news${toQuery({ ...params, perPage, page: params.page ?? 1 })}`,
+    );
+
+    return {
+      data: payload.data.map(mapNews),
+      currentPage: payload.current_page,
+      lastPage: payload.last_page,
+      perPage: payload.per_page,
+      total: payload.total,
+    };
+  } catch (error) {
+    console.warn('[ATAF API] actualités indisponibles, données de démonstration utilisées.', error);
+    const filtered = staticNews.filter((item) =>
+      (!params.search || item.title.toLowerCase().includes(params.search.toLowerCase())) &&
+      (!params.category || item.category === params.category) &&
+      (!params.membersOnly || item.isMembersOnly),
+    );
+    return paginateLocally(filtered, params, perPage);
+  }
+}
+
+export function getEvents(params: ListParams = {}): Promise<EventItem[]> {
   return withFallback(
-    async () => (await request<ApiEvent[]>('/events')).map(mapEvent),
+    async () => (await request<ApiEvent[]>(`/events${toQuery(params)}`)).map(mapEvent),
     staticEvents,
     'événements',
   );
@@ -379,54 +463,80 @@ export async function getEvent(slug: string): Promise<EventItem & { programs: Ev
   };
 }
 
-export function getMembers(): Promise<MemberItem[]> {
+export function getMembers(params: ListParams = {}): Promise<MemberItem[]> {
   return withFallback(
-    async () => (await request<ApiMember[]>('/members')).map(mapMember),
+    async () => (await request<ApiMember[]>(`/members${toQuery(params)}`)).map(mapMember),
     staticMembers,
     'membres',
   );
 }
 
-export function getAgencies(): Promise<AgencyItem[]> {
+export function getAgencies(params: ListParams = {}): Promise<AgencyItem[]> {
   return withFallback(
-    async () => (await request<ApiAgency[]>('/agencies')).map(mapAgency),
+    async () => (await request<ApiAgency[]>(`/agencies${toQuery(params)}`)).map(mapAgency),
     staticAgencies,
     'agences',
   );
 }
 
-export function getRegulations(): Promise<RegulationItem[]> {
+export function getRegulations(params: ListParams = {}): Promise<RegulationItem[]> {
   return withFallback(
-    async () => (await request<ApiRegulation[]>('/regulations')).map(mapRegulation),
+    async () => (await request<ApiRegulation[]>(`/regulations${toQuery(params)}`)).map(mapRegulation),
     staticRegulations,
     'réglementations',
   );
 }
 
-export function getPublications(): Promise<PublicationItem[]> {
+export function getPublications(params: ListParams = {}): Promise<PublicationItem[]> {
   return withFallback(
-    async () => (await request<ApiPublication[]>('/publications')).map(mapPublication),
+    async () => (await request<ApiPublication[]>(`/publications${toQuery(params)}`)).map(mapPublication),
     staticPublications,
     'publications',
   );
 }
 
-export function getDocuments(): Promise<DocumentItem[]> {
+const mapDocument = (item: ApiDocument): DocumentItem => ({
+  id: item.id,
+  code: item.category ?? item.type ?? 'Document',
+  title: item.title,
+  org: item.type ?? 'ATAF',
+  date: dateOnly(item.published_on),
+  downloadUrl: item.file_path
+    ? `${API_URL}/documents/${encodeURIComponent(item.slug)}/download`
+    : null,
+});
+
+export function getDocuments(params: ListParams = {}): Promise<DocumentItem[]> {
   return withFallback(
-    async () =>
-      (await request<ApiDocument[]>('/documents')).map((item) => ({
-        id: item.id,
-        code: item.category ?? item.type ?? 'Document',
-        title: item.title,
-        org: item.type ?? 'ATAF',
-        date: dateOnly(item.published_on),
-        downloadUrl: item.file_path
-          ? `${API_URL}/documents/${encodeURIComponent(item.slug)}/download`
-          : null,
-      })),
+    async () => (await request<ApiDocument[]>(`/documents${toQuery(params)}`)).map(mapDocument),
     staticDocuments,
     'textes réglementaires',
   );
+}
+
+export async function getDocumentsPage(params: ListParams = {}): Promise<Paginated<DocumentItem>> {
+  const perPage = params.perPage ?? 10;
+
+  try {
+    const payload = await request<ApiPaginator<ApiDocument>>(
+      `/documents${toQuery({ ...params, perPage, page: params.page ?? 1 })}`,
+    );
+
+    return {
+      data: payload.data.map(mapDocument),
+      currentPage: payload.current_page,
+      lastPage: payload.last_page,
+      perPage: payload.per_page,
+      total: payload.total,
+    };
+  } catch (error) {
+    console.warn('[ATAF API] documents indisponibles, données de démonstration utilisées.', error);
+    const filtered = staticDocuments.filter((item) =>
+      (!params.search || item.title.toLowerCase().includes(params.search.toLowerCase())) &&
+      (!params.category || item.code === params.category),
+    );
+    return paginateLocally(filtered, params, perPage);
+  }
 }
 
 export async function verifyAgency(code: string): Promise<{ found: boolean; agency: AgencyItem | null }> {
@@ -450,14 +560,19 @@ export type ContactPayload = {
   organisation?: string;
   subject: string;
   message: string;
+  website?: string;
 };
 
 export function submitContact(payload: ContactPayload): Promise<{ message: string }> {
   return request('/contact-messages', { method: 'POST', body: payload });
 }
 
-export function subscribeNewsletter(email: string, name?: string): Promise<{ message: string; token: string }> {
-  return request('/newsletter/subscribe', { method: 'POST', body: { email, name } });
+export function subscribeNewsletter(
+  email: string,
+  name?: string,
+  website?: string,
+): Promise<{ message: string; token: string }> {
+  return request('/newsletter/subscribe', { method: 'POST', body: { email, name, website } });
 }
 
 export type EventRegistrationPayload = {
@@ -470,6 +585,7 @@ export type EventRegistrationPayload = {
   phone?: string;
   participationType?: string;
   specialNeeds?: string;
+  website?: string;
 };
 
 export function registerToEvent(slug: string, payload: EventRegistrationPayload): Promise<{ message: string }> {
@@ -485,6 +601,7 @@ export function registerToEvent(slug: string, payload: EventRegistrationPayload)
       phone: payload.phone,
       participation_type: payload.participationType,
       special_needs: payload.specialNeeds,
+      website: payload.website,
     },
   });
 }
@@ -497,6 +614,7 @@ export type MembershipPayload = {
   phone?: string;
   category?: string;
   message?: string;
+  website?: string;
 };
 
 export function submitMembershipApplication(payload: MembershipPayload): Promise<{ message: string }> {
@@ -511,6 +629,7 @@ export type AgencyApplicationPayload = {
   email: string;
   phone?: string;
   message?: string;
+  website?: string;
 };
 
 export function submitAgencyApplication(payload: AgencyApplicationPayload): Promise<{ message: string }> {
@@ -524,6 +643,7 @@ export function submitAgencyApplication(payload: AgencyApplicationPayload): Prom
       email: payload.email,
       phone: payload.phone,
       message: payload.message,
+      website: payload.website,
     },
   });
 }
@@ -544,6 +664,27 @@ export async function login(email: string, password: string): Promise<AuthUser> 
 
 export async function me(): Promise<AuthUser> {
   return request<AuthUser>('/auth/me', { auth: true });
+}
+
+export function forgotPassword(email: string): Promise<{ message: string }> {
+  return request('/auth/forgot-password', { method: 'POST', body: { email } });
+}
+
+export function resetPassword(payload: {
+  token: string;
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+}): Promise<{ message: string }> {
+  return request('/auth/reset-password', {
+    method: 'POST',
+    body: {
+      token: payload.token,
+      email: payload.email,
+      password: payload.password,
+      password_confirmation: payload.passwordConfirmation,
+    },
+  });
 }
 
 export async function logout(): Promise<void> {

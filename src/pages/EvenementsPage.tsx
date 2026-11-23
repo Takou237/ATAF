@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getEvent, getEvents, registerToEvent, type EventItem, type EventProgramItem } from '../lib/api';
 import { useApi } from '../hooks/useApi';
+import ApiErrorNotice from '../components/ApiErrorNotice';
+import Honeypot from '../components/Honeypot';
 
 const PageHero = ({ title, subtitle, breadcrumb }: { title: string; subtitle?: string; breadcrumb: string }) => (
   <div className="bg-[#1A4F8A] text-white py-14">
@@ -89,15 +91,18 @@ const defaultProgram: EventProgramItem[] = [
 ];
 
 function EventDetail({ id }: { id: number }) {
-  const { data: eventsData, loading } = useApi(getEvents);
+  const { data: eventsData, loading, error: listError, reload: reloadList } = useApi(getEvents);
   const events = eventsData ?? [];
   const ev = events.find((e) => e.id === id);
-  const { data: detail } = useApi<EventItem & { programs: EventProgramItem[] } | null>(
+  const { data: detail, error: detailError, reload: reloadDetail } = useApi<
+    EventItem & { programs: EventProgramItem[] } | null
+  >(
     () => (ev ? getEvent(ev.slug) : Promise.resolve(null)),
     [ev?.slug],
   );
 
   const [form, setForm] = useState({ nom: '', prenom: '', fonction: '', entreprise: '', pays: '', telephone: '', email: '', participation: '', besoins: '' });
+  const [website, setWebsite] = useState('');
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,6 +125,7 @@ function EventDetail({ id }: { id: number }) {
         email: form.email,
         participationType: form.participation || undefined,
         specialNeeds: form.besoins || undefined,
+        website,
       });
       setSent(true);
     } catch (reason) {
@@ -130,6 +136,13 @@ function EventDetail({ id }: { id: number }) {
   };
 
   if (loading) return <div className="p-20 text-center text-slate-400">Chargement de l'événement…</div>;
+  if (listError) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-16">
+        <ApiErrorNotice message={listError} onRetry={reloadList} />
+      </div>
+    );
+  }
   if (!ev) return <div className="p-20 text-center text-slate-400">Événement non trouvé</div>;
 
   const d = new Date(ev.date);
@@ -187,12 +200,20 @@ function EventDetail({ id }: { id: number }) {
                 </div>
               </div>
 
+              {detailError && (
+                <ApiErrorNotice
+                  message="Le programme détaillé est momentanément indisponible."
+                  onRetry={reloadDetail}
+                  className="mb-4"
+                />
+              )}
               {sent ? (
                 <div className="bg-[#3BAA35]/10 border border-[#3BAA35]/20 text-[#2D8A28] rounded-lg p-4 text-center text-sm">
                   ✓ Inscription enregistrée ! Un récapitulatif vous sera envoyé par email.
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-3">
+                <form onSubmit={handleSubmit} className="relative space-y-3">
+                  <Honeypot id="event-website" value={website} onChange={setWebsite} />
                   {[
                     { field: 'nom', label: 'Nom *', type: 'text' },
                     { field: 'prenom', label: 'Prénom *', type: 'text' },
@@ -240,7 +261,7 @@ function EventDetail({ id }: { id: number }) {
 }
 
 function EventList({ type, title, navLabel }: { type?: string; title: string; navLabel: string }) {
-  const { data: eventsData, loading } = useApi(getEvents);
+  const { data: eventsData, loading, error, reload } = useApi(() => getEvents({ type }), [type]);
   const events = eventsData ?? [];
   const filtered = type ? events.filter((e) => e.type === type) : events;
   return (
@@ -248,6 +269,7 @@ function EventList({ type, title, navLabel }: { type?: string; title: string; na
       <PageHero title={title} breadcrumb={`Événements / ${navLabel}`} />
       <SubNav current={navLabel} />
       <div className="max-w-7xl mx-auto px-6 py-10">
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-6" />}
         {loading ? (
           <p className="text-slate-400 text-center py-10">Chargement des événements…</p>
         ) : filtered.length === 0 ? (
@@ -264,7 +286,7 @@ function EventList({ type, title, navLabel }: { type?: string; title: string; na
 
 export default function EvenementsPage() {
   const { section } = useParams<{ section?: string }>();
-  const { data: eventsData, loading } = useApi(getEvents);
+  const { data: eventsData, loading, error, reload } = useApi(getEvents);
   const events = eventsData ?? [];
 
   const numericId = section && !isNaN(parseInt(section)) ? parseInt(section) : null;
@@ -280,6 +302,7 @@ export default function EvenementsPage() {
       <PageHero title="Agenda des événements" subtitle="Séminaires, formations, assemblées et conférences ATAF" breadcrumb="Événements / Agenda" />
       <SubNav current="Agenda" />
       <div className="max-w-7xl mx-auto px-6 py-10">
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-6" />}
         {loading ? (
           <p className="text-slate-400 text-center py-10">Chargement des événements…</p>
         ) : (

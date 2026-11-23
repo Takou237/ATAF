@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getAgencies, submitAgencyApplication, verifyAgency, type AgencyItem } from '../lib/api';
 import { useApi } from '../hooks/useApi';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import ApiErrorNotice from '../components/ApiErrorNotice';
+import Honeypot from '../components/Honeypot';
 
 const PageHero = ({ title, subtitle, breadcrumb }: { title: string; subtitle?: string; breadcrumb: string }) => (
   <div className="bg-[#1A4F8A] text-white py-14">
@@ -38,10 +41,16 @@ function SubNav({ current }: { current: string }) {
 function Annuaire() {
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
-  const { data: agenciesData, loading } = useApi(getAgencies);
+  const debouncedSearch = useDebouncedValue(search);
+  const { data: agenciesData, loading, error, reload } = useApi(
+    () => getAgencies({ search: debouncedSearch, country }),
+    [debouncedSearch, country],
+  );
+  const { data: allAgenciesData } = useApi(getAgencies);
   const agencies = agenciesData ?? [];
+  const allAgencies = allAgenciesData ?? [];
 
-  const countries = [...new Set(agencies.map((a) => a.country))].sort();
+  const countries = [...new Set(allAgencies.map((a) => a.country))].sort();
   const filtered = agencies.filter((a) =>
     (!search || a.name.toLowerCase().includes(search.toLowerCase()) || a.code.includes(search)) &&
     (!country || a.country === country)
@@ -59,6 +68,7 @@ function Annuaire() {
             {countries.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-5" />}
         {loading && <p className="text-slate-400 text-sm mb-4">Chargement des agences…</p>}
         <p className="text-slate-500 text-sm mb-5">{filtered.length} agence{filtered.length > 1 ? 's' : ''} trouvée{filtered.length > 1 ? 's' : ''}</p>
         <div className="overflow-x-auto bg-white rounded-xl border border-slate-100 shadow-sm">
@@ -188,6 +198,7 @@ function Verification() {
 
 function Informations() {
   const [form, setForm] = useState({ nom: '', prenom: '', agence: '', pays: '', email: '', telephone: '', message: '' });
+  const [website, setWebsite] = useState('');
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -206,6 +217,7 @@ function Informations() {
         email: form.email,
         phone: form.telephone || undefined,
         message: form.message || undefined,
+        website,
       });
       setSent(true);
     } catch (reason) {
@@ -251,7 +263,8 @@ function Informations() {
                 <p className="text-sm text-slate-600">Notre secrétariat vous contactera sous 5 jours ouvrés avec un dossier de demande d'agrément.</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="relative space-y-4">
+                <Honeypot id="agency-website" value={website} onChange={setWebsite} />
                 <h3 className="font-semibold text-[#0D2B4E]">Demande de dossier d'agrément</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {[['nom', 'Nom *'], ['prenom', 'Prénom *']].map(([f, l]) => (

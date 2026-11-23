@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { submitContact } from '../lib/api';
+import Honeypot from '../components/Honeypot';
 
 export default function ContactPage() {
   const [form, setForm] = useState({ nom: '', email: '', sujet: '', message: '', organisation: '' });
+  const [website, setWebsite] = useState('');
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +22,7 @@ export default function ContactPage() {
         organisation: form.organisation || undefined,
         subject: form.sujet,
         message: form.message,
+        website,
       });
       setSent(true);
     } catch (reason) {
@@ -100,7 +103,8 @@ export default function ContactPage() {
                 <p className="text-slate-600">Merci de nous avoir contactés. Notre équipe vous répondra dans les meilleurs délais.</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="relative space-y-5">
+                <Honeypot id="contact-website" value={website} onChange={setWebsite} />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">Nom complet *</label>

@@ -1,5 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { getDocuments, getDocumentsPage, getPublications, type DocumentItem, type PublicationItem } from '../lib/api';
+import { useApi } from '../hooks/useApi';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import ApiErrorNotice from '../components/ApiErrorNotice';
 
 const PageHero = ({ title, subtitle, breadcrumb }: { title: string; subtitle?: string; breadcrumb: string }) => (
   <div className="bg-[#1A4F8A] text-white py-14">
@@ -33,29 +37,79 @@ function SubNav({ current }: { current: string }) {
   );
 }
 
-const categories = ['Réglementation', 'Sécurité', 'Sûreté', 'Formation', 'Transport', 'Gouvernance', 'Environnement', 'Études', 'Rapports', 'Publications ATAF'];
-
-const docs = [
-  { id: 1, title: 'Guide de sécurité aérienne ATAF 2026', category: 'Sécurité', type: 'PDF', size: '2.4 MB', date: 'sept. 2026', public: true },
-  { id: 2, title: 'Rapport annuel ATAF 2025', category: 'Rapports', type: 'PDF', size: '5.8 MB', date: 'juil. 2026', public: true },
-  { id: 3, title: 'Manuel de sûreté aérienne — Membres ATAF', category: 'Sûreté', type: 'PDF', size: '3.1 MB', date: 'juin 2026', public: false },
-  { id: 4, title: 'Formation SMS — Support de cours', category: 'Formation', type: 'PDF', size: '8.2 MB', date: 'mai 2026', public: false },
-  { id: 5, title: 'Étude : connectivité aérienne en Afrique francophone', category: 'Études', type: 'PDF', size: '6.7 MB', date: 'mars 2026', public: true },
-  { id: 6, title: 'Textes fondateurs et statuts de l\'ATAF', category: 'Gouvernance', type: 'PDF', size: '1.2 MB', date: 'janv. 2026', public: true },
-  { id: 7, title: 'Bilan environnemental du transport aérien francophone', category: 'Environnement', type: 'PDF', size: '4.5 MB', date: 'déc. 2025', public: true },
-  { id: 8, title: 'Comptes rendus — 131ème Assemblée Générale', category: 'Rapports', type: 'PDF', size: '2.9 MB', date: 'nov. 2025', public: false },
-];
-
 function CentreDocumentaire() {
   const [cat, setCat] = useState('');
   const [search, setSearch] = useState('');
-  const [access, setAccess] = useState('');
+  const debouncedSearch = useDebouncedValue(search);
+  const [items, setItems] = useState<DocumentItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { data: allDocsData } = useApi(getDocuments);
+  const allDocs = allDocsData ?? [];
+  const categories = [...new Set(allDocs.map((d) => d.code))].sort();
 
-  const filtered = docs.filter((d) =>
-    (!cat || d.category === cat) &&
-    (!search || d.title.toLowerCase().includes(search.toLowerCase())) &&
-    (!access || (access === 'public' ? d.public : !d.public))
-  );
+  const loadFirstPage = () => {
+    setLoading(true);
+    setError(null);
+    setPage(1);
+
+    return getDocumentsPage({ page: 1, perPage: 10, search: debouncedSearch, category: cat })
+      .then((result) => {
+        setItems(result.data);
+        setLastPage(result.lastPage);
+        setTotal(result.total);
+      })
+      .catch((reason: unknown) => {
+        setError(reason instanceof Error ? reason.message : 'Impossible de charger les documents.');
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(null);
+    setPage(1);
+
+    getDocumentsPage({ page: 1, perPage: 10, search: debouncedSearch, category: cat })
+      .then((result) => {
+        if (!active) return;
+        setItems(result.data);
+        setLastPage(result.lastPage);
+        setTotal(result.total);
+      })
+      .catch((reason: unknown) => {
+        if (!active) return;
+        setError(reason instanceof Error ? reason.message : 'Impossible de charger les documents.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [debouncedSearch, cat]);
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const result = await getDocumentsPage({ page: nextPage, perPage: 10, search: debouncedSearch, category: cat });
+      setItems((previous) => [...previous, ...result.data]);
+      setPage(nextPage);
+      setLastPage(result.lastPage);
+      setTotal(result.total);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Impossible de charger la suite.');
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   return (
     <>
@@ -68,43 +122,52 @@ function CentreDocumentaire() {
             <option value="">Toutes les catégories</option>
             {categories.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select value={access} onChange={(e) => setAccess(e.target.value)} className="px-4 py-2.5 border border-slate-200 rounded-md text-sm bg-white focus:outline-none focus:border-[#1A4F8A]">
-            <option value="">Accès public et privé</option>
-            <option value="public">Documents publics</option>
-            <option value="private">Documents membres</option>
-          </select>
         </div>
 
-        <div className="grid grid-cols-1 gap-3">
-          {filtered.map((doc) => (
-            <div key={doc.id} className="flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-xl hover:shadow-md transition-shadow">
-              <div className="w-10 h-12 bg-red-50 rounded-md flex items-center justify-center shrink-0 border border-red-100">
-                <span className="text-red-500 text-xs font-bold">PDF</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-[#0D2B4E] truncate">{doc.title}</h3>
-                <div className="flex gap-3 mt-1 text-xs text-slate-400">
-                  <span>{doc.category}</span>
-                  <span>·</span>
-                  <span>{doc.size}</span>
-                  <span>·</span>
-                  <span>{doc.date}</span>
+        {error && <ApiErrorNotice message={error} onRetry={loadFirstPage} className="mb-6" />}
+        {loading ? (
+          <p className="text-slate-400 text-center py-10">Chargement des documents…</p>
+        ) : items.length === 0 ? (
+          <p className="text-slate-400 text-center py-10">Aucun document correspondant.</p>
+        ) : (
+          <>
+            <p className="text-slate-500 text-sm mb-5">{total} document{total > 1 ? 's' : ''}</p>
+            <div className="grid grid-cols-1 gap-3">
+              {items.map((doc) => (
+                <div key={doc.id} className="flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-xl hover:shadow-md transition-shadow">
+                  <div className="w-10 h-12 bg-red-50 rounded-md flex items-center justify-center shrink-0 border border-red-100">
+                    <span className="text-red-500 text-xs font-bold">PDF</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-[#0D2B4E] truncate">{doc.title}</h3>
+                    <div className="flex gap-3 mt-1 text-xs text-slate-400">
+                      <span>{doc.code}</span>
+                      <span>·</span>
+                      <span>{doc.org}</span>
+                      <span>·</span>
+                      <span>{new Date(doc.date).toLocaleDateString('fr-FR')}</span>
+                    </div>
+                  </div>
+                  {doc.downloadUrl ? (
+                    <a href={doc.downloadUrl} className="shrink-0 flex items-center gap-1.5 text-xs text-[#1A4F8A] border border-[#1A4F8A]/20 px-3 py-1.5 rounded-md hover:bg-[#1A4F8A] hover:text-white transition-colors">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                      Télécharger
+                    </a>
+                  ) : (
+                    <span className="shrink-0 text-xs text-slate-400 border border-slate-200 px-3 py-1.5 rounded-md">Indisponible</span>
+                  )}
                 </div>
-              </div>
-              {doc.public ? (
-                <button className="shrink-0 flex items-center gap-1.5 text-xs text-[#1A4F8A] border border-[#1A4F8A]/20 px-3 py-1.5 rounded-md hover:bg-[#1A4F8A] hover:text-white transition-colors">
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                  Télécharger
-                </button>
-              ) : (
-                <Link to="/espace-membres" className="shrink-0 flex items-center gap-1.5 text-xs text-slate-500 border border-slate-200 px-3 py-1.5 rounded-md hover:border-[#1A4F8A] hover:text-[#1A4F8A] transition-colors">
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
-                  Membres
-                </Link>
-              )}
+              ))}
             </div>
-          ))}
-        </div>
+            {page < lastPage && (
+              <div className="text-center mt-8">
+                <button type="button" onClick={loadMore} disabled={loadingMore} className="px-6 py-3 border border-[#1A4F8A]/20 text-[#1A4F8A] rounded-md text-sm font-medium hover:bg-[#1A4F8A] hover:text-white transition-colors disabled:opacity-60">
+                  {loadingMore ? 'Chargement…' : 'Charger plus'}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </>
   );
@@ -159,32 +222,45 @@ function Mediatheque() {
   );
 }
 
-export default function RessourcesPage() {
-  const { section } = useParams<{ section?: string }>();
-  if (section === 'publications') return (
+function PublicationsList() {
+  const { data, loading, error, reload } = useApi(getPublications);
+  const publications: PublicationItem[] = data ?? [];
+
+  return (
     <>
       <PageHero title="Publications" subtitle="Publications et rapports de l'ATAF" breadcrumb="Ressources / Publications" />
       <SubNav current="Publications" />
       <div className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {docs.filter((d) => d.public).map((doc) => (
-            <div key={doc.id} className="flex gap-4 p-5 bg-white border border-slate-100 rounded-xl hover:shadow-md transition-shadow">
-              <div className="w-12 h-14 bg-red-50 rounded-md flex flex-col items-center justify-center gap-1 shrink-0 border border-red-100">
-                <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
-                <span className="text-red-400 text-[10px] font-bold">PDF</span>
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-6" />}
+        {loading ? (
+          <p className="text-slate-400 text-center py-10">Chargement des publications…</p>
+        ) : publications.length === 0 ? (
+          <p className="text-slate-400 text-center py-10">Aucune publication disponible.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {publications.map((publication) => (
+              <div key={publication.id} className="flex gap-4 p-5 bg-white border border-slate-100 rounded-xl hover:shadow-md transition-shadow">
+                <div className="w-12 h-14 bg-red-50 rounded-md flex flex-col items-center justify-center gap-1 shrink-0 border border-red-100">
+                  <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                  <span className="text-red-400 text-[10px] font-bold">PDF</span>
+                </div>
+                <div className="flex-1">
+                  <span className="text-xs text-[#3BAA35]">{publication.type}</span>
+                  <h3 className="font-medium text-[#0D2B4E] mt-0.5 text-sm">{publication.title}</h3>
+                  <p className="text-xs text-slate-400 mt-1">{publication.pages} pages · {new Date(publication.date).toLocaleDateString('fr-FR')}</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <span className="text-xs text-[#3BAA35]">{doc.category}</span>
-                <h3 className="font-medium text-[#0D2B4E] mt-0.5 text-sm">{doc.title}</h3>
-                <p className="text-xs text-slate-400 mt-1">{doc.size} · {doc.date}</p>
-                <button className="mt-2 text-xs text-[#1A4F8A] font-medium hover:underline">Télécharger →</button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
+}
+
+export default function RessourcesPage() {
+  const { section } = useParams<{ section?: string }>();
+  if (section === 'publications') return <PublicationsList />;
   if (section === 'mediatheque') return <Mediatheque />;
   return <CentreDocumentaire />;
 }

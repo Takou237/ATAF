@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getEvents, getMembers, getNews, subscribeNewsletter } from '../lib/api';
 import { useApi } from '../hooks/useApi';
+import Honeypot from '../components/Honeypot';
+import ApiErrorNotice from '../components/ApiErrorNotice';
 
 const stats = [
   { value: '75+', label: 'Années d\'existence' },
@@ -72,12 +74,13 @@ export default function HomePage() {
   const [activeFilter, setActiveFilter] = useState('Tous');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [website, setWebsite] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [subscribing, setSubscribing] = useState(false);
   const [subscribeError, setSubscribeError] = useState<string | null>(null);
 
-  const { data: newsData, loading: newsLoading } = useApi(getNews);
-  const { data: eventsData, loading: eventsLoading } = useApi(getEvents);
+  const { data: newsData, loading: newsLoading, error: newsError, reload: reloadNews } = useApi(getNews);
+  const { data: eventsData, loading: eventsLoading, error: eventsError, reload: reloadEvents } = useApi(getEvents);
   const { data: membersData } = useApi(getMembers);
   const news = newsData ?? [];
   const events = eventsData ?? [];
@@ -89,7 +92,7 @@ export default function HomePage() {
     setSubscribeError(null);
 
     try {
-      await subscribeNewsletter(email, name);
+      await subscribeNewsletter(email, name, website);
       setSubscribed(true);
     } catch (error) {
       setSubscribeError(error instanceof Error ? error.message : "L'inscription a échoué.");
@@ -106,6 +109,12 @@ export default function HomePage() {
 
   return (
     <div>
+      {(newsError || eventsError) && (
+        <div className="mx-auto max-w-7xl px-6 pt-6 space-y-3">
+          {newsError && <ApiErrorNotice message={newsError} onRetry={reloadNews} />}
+          {eventsError && <ApiErrorNotice message={eventsError} onRetry={reloadEvents} />}
+        </div>
+      )}
       {/* Hero */}
       <section className="relative h-[92vh] min-h-[600px] flex items-center overflow-hidden">
         <img
@@ -424,7 +433,8 @@ export default function HomePage() {
             </div>
           ) : (
             <>
-            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <form onSubmit={handleSubscribe} className="relative flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <Honeypot id="home-website" value={website} onChange={setWebsite} />
               <input
                 type="text"
                 placeholder="Votre nom"

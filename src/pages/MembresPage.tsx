@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getMembers, submitMembershipApplication } from '../lib/api';
 import { useApi } from '../hooks/useApi';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import ApiErrorNotice from '../components/ApiErrorNotice';
+import Honeypot from '../components/Honeypot';
 
 const PageHero = ({ title, subtitle, breadcrumb }: { title: string; subtitle?: string; breadcrumb: string }) => (
   <div className="bg-[#1A4F8A] text-white py-14">
@@ -40,11 +43,17 @@ function Annuaire() {
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
   const [category, setCategory] = useState('');
-  const { data: membersData, loading } = useApi(getMembers);
+  const debouncedSearch = useDebouncedValue(search);
+  const { data: membersData, loading, error, reload } = useApi(
+    () => getMembers({ search: debouncedSearch, country, category }),
+    [debouncedSearch, country, category],
+  );
+  const { data: allMembersData } = useApi(getMembers);
   const members = membersData ?? [];
+  const allMembers = allMembersData ?? [];
 
-  const countries = [...new Set(members.map((m) => m.country))].sort();
-  const categories = [...new Set(members.map((m) => m.category))].sort();
+  const countries = [...new Set(allMembers.map((m) => m.country))].sort();
+  const categories = [...new Set(allMembers.map((m) => m.category))].sort();
 
   const filtered = members.filter((m) => {
     const s = search.toLowerCase();
@@ -79,6 +88,7 @@ function Annuaire() {
           </select>
         </div>
 
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-5" />}
         {loading && <p className="text-slate-400 text-sm mb-4">Chargement de l'annuaire…</p>}
         <p className="text-slate-500 text-sm mb-5">{filtered.length} membre{filtered.length > 1 ? 's' : ''} trouvé{filtered.length > 1 ? 's' : ''}</p>
 
@@ -108,7 +118,7 @@ function Annuaire() {
 }
 
 function Compagnies() {
-  const { data: membersData } = useApi(getMembers);
+  const { data: membersData, error, reload } = useApi(getMembers);
   const members = membersData ?? [];
   const airlines = members.filter((m) => m.category === 'Compagnie aérienne');
   return (
@@ -116,6 +126,7 @@ function Compagnies() {
       <PageHero title="Compagnies membres" subtitle="Les compagnies aériennes du réseau ATAF" breadcrumb="Membres / Compagnies" />
       <SubNav current="Compagnies membres" />
       <div className="max-w-7xl mx-auto px-6 py-12">
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-6" />}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -146,7 +157,7 @@ function Compagnies() {
 }
 
 function Partenaires() {
-  const { data: membersData } = useApi(getMembers);
+  const { data: membersData, error, reload } = useApi(getMembers);
   const members = membersData ?? [];
   const partners = members.filter((m) => m.category !== 'Compagnie aérienne');
   return (
@@ -154,6 +165,7 @@ function Partenaires() {
       <PageHero title="Partenaires" subtitle="Nos partenaires institutionnels et industriels" breadcrumb="Membres / Partenaires" />
       <SubNav current="Partenaires" />
       <div className="max-w-7xl mx-auto px-6 py-12">
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-6" />}
         <p className="text-slate-600 mb-8">L'ATAF rassemble autour de ses membres compagnies aériennes de nombreux partenaires industriels, institutionnels et de services qui contribuent au développement du transport aérien francophone.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {partners.map((p) => (
@@ -175,6 +187,7 @@ function Partenaires() {
 
 function Adhesion() {
   const [form, setForm] = useState({ name: '', company: '', country: '', email: '', phone: '', category: '', message: '' });
+  const [website, setWebsite] = useState('');
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -193,6 +206,7 @@ function Adhesion() {
         phone: form.phone || undefined,
         category: form.category || undefined,
         message: form.message || undefined,
+        website,
       });
       setSent(true);
     } catch (reason) {
@@ -237,7 +251,8 @@ function Adhesion() {
                 <p className="text-sm">Notre équipe prendra contact avec vous dans les meilleurs délais pour étudier votre demande d'adhésion.</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="relative space-y-4">
+                <Honeypot id="membership-website" value={website} onChange={setWebsite} />
                 <h3 className="font-semibold text-[#0D2B4E]">Formulaire de demande d'adhésion</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

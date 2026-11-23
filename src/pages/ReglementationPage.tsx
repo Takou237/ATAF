@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getDocuments, getPublications, getRegulations } from '../lib/api';
 import { useApi } from '../hooks/useApi';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import ApiErrorNotice from '../components/ApiErrorNotice';
 
 const formatMonth = (value: string): string =>
   value ? new Date(value).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : '';
@@ -52,11 +54,17 @@ function Veille() {
   const [category, setCategory] = useState('');
   const [type, setType] = useState('');
   const [search, setSearch] = useState('');
-  const { data: regulationsData, loading } = useApi(getRegulations);
+  const debouncedSearch = useDebouncedValue(search);
+  const { data: regulationsData, loading, error, reload } = useApi(
+    () => getRegulations({ search: debouncedSearch, category, type }),
+    [debouncedSearch, category, type],
+  );
+  const { data: allRegulationsData } = useApi(getRegulations);
   const regulations = regulationsData ?? [];
+  const allRegulations = allRegulationsData ?? [];
 
-  const cats = [...new Set(regulations.map((r) => r.category))];
-  const types = [...new Set(regulations.map((r) => r.type))];
+  const cats = [...new Set(allRegulations.map((r) => r.category))];
+  const types = [...new Set(allRegulations.map((r) => r.type))];
 
   const filtered = regulations.filter((r) =>
     (!category || r.category === category) &&
@@ -80,6 +88,7 @@ function Veille() {
             {types.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-5" />}
         {loading && <p className="text-slate-400 text-sm mb-4">Chargement de la veille…</p>}
         <div className="space-y-3">
           {filtered.map((r) => (
@@ -106,13 +115,14 @@ function Veille() {
 }
 
 function Textes() {
-  const { data: itemsData, loading } = useApi(getDocuments);
+  const { data: itemsData, loading, error, reload } = useApi(getDocuments);
   const items = itemsData ?? [];
   return (
     <>
       <PageHero title="Textes réglementaires" subtitle="Base documentaire réglementaire ATAF" breadcrumb="Réglementation / Textes" />
       <SubNav current="Textes réglementaires" />
       <div className="max-w-5xl mx-auto px-6 py-10">
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-5" />}
         {loading && <p className="text-slate-400 text-sm mb-4">Chargement des textes…</p>}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -148,13 +158,14 @@ function Textes() {
 }
 
 function Publications() {
-  const { data: pubsData, loading } = useApi(getPublications);
+  const { data: pubsData, loading, error, reload } = useApi(getPublications);
   const pubs = pubsData ?? [];
   return (
     <>
       <PageHero title="Publications" subtitle="Publications officielles de l'ATAF" breadcrumb="Réglementation / Publications" />
       <SubNav current="Publications" />
       <div className="max-w-5xl mx-auto px-6 py-10">
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-5" />}
         {loading && <p className="text-slate-400 text-sm mb-4">Chargement des publications…</p>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {pubs.map((p) => (
@@ -178,7 +189,7 @@ function Publications() {
 }
 
 function Notes() {
-  const { data: regulationsData, loading } = useApi(getRegulations);
+  const { data: regulationsData, loading, error, reload } = useApi(getRegulations);
   const regulations = regulationsData ?? [];
   const notes = regulations.filter((r) => r.type === 'Analyse' || r.type === 'Note d\'information');
   return (
@@ -186,6 +197,7 @@ function Notes() {
       <PageHero title="Notes et analyses" subtitle="Analyses et notes d'information ATAF" breadcrumb="Réglementation / Notes" />
       <SubNav current="Notes et analyses" />
       <div className="max-w-5xl mx-auto px-6 py-10">
+        {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-5" />}
         {loading && <p className="text-slate-400 text-sm mb-4">Chargement des notes…</p>}
         <div className="space-y-4">
           {notes.map((n) => (

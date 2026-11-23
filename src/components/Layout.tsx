@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logoImg from '../imports/LOGO-UPDATE-ATAG-1.png';
 import { subscribeNewsletter } from '../lib/api';
+import Honeypot from './Honeypot';
 
 const navItems = [
   { label: "L'ATAF", path: '/ataf', children: [
@@ -55,6 +56,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterWebsite, setNewsletterWebsite] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [newsletterError, setNewsletterError] = useState<string | null>(null);
   const location = useLocation();
@@ -65,9 +67,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setNewsletterError(null);
 
     try {
-      await subscribeNewsletter(newsletterEmail);
+      await subscribeNewsletter(newsletterEmail, undefined, newsletterWebsite);
       setNewsletterStatus('sent');
       setNewsletterEmail('');
+      setNewsletterWebsite('');
     } catch (reason) {
       setNewsletterStatus('error');
       setNewsletterError(reason instanceof Error ? reason.message : "L'inscription a échoué.");
@@ -253,7 +256,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </ul>
               <div className="mt-5">
                 <p className="text-sm text-slate-400 mb-2">Newsletter ATAF</p>
-                <form onSubmit={handleNewsletter} className="flex gap-2">
+                <form onSubmit={handleNewsletter} className="relative flex gap-2">
+                  <Honeypot id="footer-website" value={newsletterWebsite} onChange={setNewsletterWebsite} />
                   <input
                     type="email"
                     required

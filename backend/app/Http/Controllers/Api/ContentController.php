@@ -15,12 +15,29 @@ use App\Models\Page;
 use App\Models\Publication;
 use App\Models\Regulation;
 use App\Models\Setting;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ContentController extends Controller
 {
+    private function respond(Request $request, Builder $query, int $defaultPerPage = 12): JsonResponse
+    {
+        if (! $request->filled('per_page')) {
+            return response()->json($query->get());
+        }
+
+        $perPage = max(1, min(100, (int) $request->input('per_page', $defaultPerPage)));
+
+        return response()->json($query->paginate($perPage)->withQueryString());
+    }
+
+    private function searchTerm(Request $request): string
+    {
+        return trim((string) $request->input('search', $request->input('q', '')));
+    }
+
     public function settings(): JsonResponse
     {
         return response()->json(Setting::query()->pluck('value', 'key'));
@@ -40,16 +57,29 @@ class ContentController extends Controller
         return response()->json($page);
     }
 
-    public function members(): JsonResponse
+    public function members(Request $request): JsonResponse
     {
-        return response()->json(
-            Member::query()
-                ->where('is_public', true)
-                ->where('status', 'active')
-                ->with('country:id,name')
-                ->orderBy('name')
-                ->get(),
-        );
+        $query = Member::query()
+            ->where('is_public', true)
+            ->where('status', 'active')
+            ->with('country:id,name');
+
+        if ($search = $this->searchTerm($request)) {
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('city', 'like', "%{$search}%");
+            });
+        }
+
+        if ($country = trim((string) $request->input('country', ''))) {
+            $query->whereHas('country', fn (Builder $q) => $q->where('name', $country));
+        }
+
+        if ($category = trim((string) $request->input('category', ''))) {
+            $query->where('category', $category);
+        }
+
+        return $this->respond($request, $query->orderBy('name'));
     }
 
     public function member(Member $member): JsonResponse
@@ -59,14 +89,26 @@ class ContentController extends Controller
         return response()->json($member->load('country:id,name', 'contacts'));
     }
 
-    public function news(): JsonResponse
+    public function news(Request $request): JsonResponse
     {
-        return response()->json(
-            News::published()
-                ->with('category:id,name', 'tags:id,name,slug')
-                ->orderByDesc('published_at')
-                ->get(),
-        );
+        $query = News::published()->with('category:id,name', 'tags:id,name,slug');
+
+        if ($search = $this->searchTerm($request)) {
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('excerpt', 'like', "%{$search}%");
+            });
+        }
+
+        if ($category = trim((string) $request->input('category', ''))) {
+            $query->whereHas('category', fn (Builder $q) => $q->where('name', $category));
+        }
+
+        if ($request->boolean('members_only')) {
+            $query->where('is_members_only', true);
+        }
+
+        return $this->respond($request, $query->orderByDesc('published_at'));
     }
 
     public function newsItem(News $news): JsonResponse
@@ -76,11 +118,30 @@ class ContentController extends Controller
         return response()->json($news->load('category:id,name', 'tags:id,name,slug'));
     }
 
-    public function events(): JsonResponse
+    public function events(Request $request): JsonResponse
     {
-        return response()->json(
-            Event::query()->withCount('registrations')->orderByDesc('starts_at')->get(),
-        );
+        $query = Event::query()->withCount('registrations');
+
+        if ($search = $this->searchTerm($request)) {
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        if ($type = trim((string) $request->input('type', ''))) {
+            $query->where('type', $type);
+        }
+
+        if ($status = trim((string) $request->input('status', ''))) {
+            $query->where('status', $status);
+        }
+
+        if ($request->boolean('upcoming')) {
+            $query->where('starts_at', '>=', now());
+        }
+
+        return $this->respond($request, $query->orderByDesc('starts_at'));
     }
 
     public function event(Event $event): JsonResponse
@@ -90,11 +151,26 @@ class ContentController extends Controller
         );
     }
 
-    public function regulations(): JsonResponse
+    public function regulations(Request $request): JsonResponse
     {
-        return response()->json(
-            Regulation::public()->orderByDesc('published_on')->get(),
-        );
+        $query = Regulation::public();
+
+        if ($search = $this->searchTerm($request)) {
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('summary', 'like', "%{$search}%");
+            });
+        }
+
+        if ($category = trim((string) $request->input('category', ''))) {
+            $query->where('category', $category);
+        }
+
+        if ($type = trim((string) $request->input('type', ''))) {
+            $query->where('type', $type);
+        }
+
+        return $this->respond($request, $query->orderByDesc('published_on'));
     }
 
     public function regulation(Regulation $regulation): JsonResponse
@@ -104,9 +180,23 @@ class ContentController extends Controller
         return response()->json($regulation);
     }
 
-    public function documents(): JsonResponse
+    public function documents(Request $request): JsonResponse
     {
-        return response()->json(Document::public()->orderByDesc('published_on')->get());
+        $query = Document::public();
+
+        if ($search = $this->searchTerm($request)) {
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        if ($category = trim((string) $request->input('category', ''))) {
+            $query->where('category', $category);
+        }
+
+        if ($type = trim((string) $request->input('type', ''))) {
+            $query->where('type', $type);
+        }
+
+        return $this->respond($request, $query->orderByDesc('published_on'));
     }
 
     public function document(Document $document): JsonResponse
@@ -129,16 +219,41 @@ class ContentController extends Controller
         return response()->file(storage_path('app/public/'.$document->file_path));
     }
 
-    public function publications(): JsonResponse
+    public function publications(Request $request): JsonResponse
     {
-        return response()->json(
-            Publication::query()->where('is_public', true)->orderByDesc('published_on')->get(),
-        );
+        $query = Publication::query()->where('is_public', true);
+
+        if ($search = $this->searchTerm($request)) {
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        if ($type = trim((string) $request->input('type', ''))) {
+            $query->where('type', $type);
+        }
+
+        return $this->respond($request, $query->orderByDesc('published_on'));
     }
 
-    public function agencies(): JsonResponse
+    public function agencies(Request $request): JsonResponse
     {
-        return response()->json(Agency::approved()->orderBy('name')->get());
+        $query = Agency::approved();
+
+        if ($search = $this->searchTerm($request)) {
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('agreement_number', 'like', "%{$search}%");
+            });
+        }
+
+        if ($country = trim((string) $request->input('country', ''))) {
+            $query->where('country', $country);
+        }
+
+        if ($status = trim((string) $request->input('status', ''))) {
+            $query->where('status', $status);
+        }
+
+        return $this->respond($request, $query->orderBy('name'));
     }
 
     public function verifyAgency(Request $request, string $number): JsonResponse
