@@ -10,6 +10,7 @@ return [
         env('FRONTEND_URL', 'http://localhost:8443'),
         'http://localhost:8443',
         'http://127.0.0.1:8443',
+        'https://ataf-frontend.vercel.app',
     ]),
 
     'allowed_origins_patterns' => [],

@@ -20,6 +20,10 @@
 /public/fonts/filament
 /public/hot
 /public/js/filament
+
+# Documentation et skills générés localement par Laravel Boost
+/.agents/
+/.claude/
 /public/storage
 /storage/*.key
 /storage/pail

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Portrait par défaut</title>
+  <desc id="desc">Silhouette bleue utilisée lorsqu'aucune photo n'est renseignée.</desc>
+  <rect width="160" height="160" rx="80" fill="#E8F0F8"/>
+  <circle cx="80" cy="61" r="28" fill="#1A4F8A"/>
+  <path d="M30 145c4-31 23-48 50-48s46 17 50 48" fill="#1A4F8A"/>
+</svg>

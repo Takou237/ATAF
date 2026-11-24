@@ -1,7 +1,8 @@
 {
-  "description": "This dynamic web application modernizes the ATAF website, providing individual pages with updated content, user-friendly forms, and a sleek, minimalist design.",
+  "title": "ATAF — Association des Transporteurs Aériens Francophones",
+  "description": "L'ATAF réunit les compagnies aériennes francophones et favorise la coopération aéronautique internationale.",
   "robots": {
-    "index": false
+    "index": true
   },
   "accessibility": {
     "addBypassLinks": false,

@@ -1,0 +1,20 @@
+{
+  "redirects": [
+    {
+      "source": "/admin",
+      "destination": "https://ataf-production.up.railway.app/admin",
+      "permanent": false
+    },
+    {
+      "source": "/admin/:match*",
+      "destination": "https://ataf-production.up.railway.app/admin/:match*",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
