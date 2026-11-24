@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Roles\RoleResource;
 use App\Models\Member;
 use App\Models\News;
 use App\Models\User;
 use Database\Seeders\RbacSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class AdminAccessTest extends TestCase
@@ -68,5 +70,29 @@ class AdminAccessTest extends TestCase
         $this->assertTrue($communication->can('viewAny', News::class));
         $this->assertFalse($communication->can('viewAny', Member::class));
         $this->assertFalse($communication->can('create', Member::class));
+    }
+
+    public function test_admin_manages_roles(): void
+    {
+        $this->actingAs($this->userWithRole('admin'));
+
+        $this->get('/admin/roles')->assertOk();
+    }
+
+    public function test_roles_are_closed_to_other_roles(): void
+    {
+        $this->actingAs($this->userWithRole('communication'));
+
+        $this->get('/admin/roles')->assertForbidden();
+    }
+
+    public function test_sensitive_roles_cannot_be_deleted(): void
+    {
+        $this->actingAs($this->userWithRole('admin'));
+        $this->userWithRole('communication');
+
+        $this->assertFalse(RoleResource::canDelete(Role::findByName('super-admin')));
+        $this->assertFalse(RoleResource::canDelete(Role::findByName('communication')));
+        $this->assertTrue(RoleResource::canDelete(Role::findByName('events')));
     }
 }

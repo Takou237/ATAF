@@ -21,6 +21,7 @@ class AdminSmokeTest extends TestCase
     public function test_admin_pages_render(): void
     {
         Role::create(['name' => 'super-admin', 'guard_name' => 'web']);
+        $role = Role::create(['name' => 'communication', 'guard_name' => 'web']);
 
         $user = User::create([
             'name' => 'Admin',
@@ -73,6 +74,9 @@ class AdminSmokeTest extends TestCase
             '/admin/event-registrations',
             '/admin/agency-verifications',
             '/admin/media-items',
+            '/admin/roles',
+            '/admin/roles/create',
+            "/admin/roles/{$role->id}/edit",
         ];
 
         foreach ($urls as $url) {
