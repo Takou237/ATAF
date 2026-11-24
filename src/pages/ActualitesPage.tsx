@@ -4,7 +4,6 @@ import { useApi } from '../hooks/useApi';
 import ApiErrorNotice from '../components/ApiErrorNotice';
 import CmsPage from '../components/CmsPage';
 
-const SERIF = { fontFamily: 'Instrument Serif, serif' } as const;
 
 function NewsDetail({ id }: { id: number }) {
   const { data: newsData, loading, error, reload } = useApi(getNews);
@@ -30,7 +29,7 @@ function NewsDetail({ id }: { id: number }) {
             <Link to="/actualites" className="hover:text-white">Actualités</Link> / {item.category}
           </div>
           <span className="text-xs font-medium bg-[#3BAA35] px-3 py-1 rounded-full">{item.category}</span>
-          <h1 className="text-3xl font-bold mt-3 leading-tight" style={SERIF}>{item.title}</h1>
+          <h1 className="text-3xl font-bold mt-3 leading-tight">{item.title}</h1>
           <p className="text-blue-200 text-sm mt-2">
             {new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
@@ -53,10 +52,20 @@ function NewsDetail({ id }: { id: number }) {
             <a href="mailto:sg@ataf.fr" className="text-[#1A4F8A]">sg@ataf.fr</a>.
           </p>
         </div>
-        <div className="flex gap-3 mt-8">
+        <div className="flex flex-wrap gap-3 mt-8">
           <Link to="/actualites" className="flex items-center gap-2 px-4 py-2 bg-[#1A4F8A] text-white rounded-md text-sm hover:bg-[#12376A]">
             ← Retour aux actualités
           </Link>
+          {item.downloadUrl && (
+            <a
+              href={item.downloadUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-[#3BAA35] text-white rounded-md text-sm font-medium hover:bg-[#2D8A28]"
+            >
+              ↓ Télécharger le communiqué (PDF)
+            </a>
+          )}
         </div>
       </div>
     </>

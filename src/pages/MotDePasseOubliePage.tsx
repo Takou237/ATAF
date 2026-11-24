@@ -32,7 +32,7 @@ export default function MotDePasseOubliePage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-[#0D2B4E]" style={{ fontFamily: 'Instrument Serif, serif' }}>Mot de passe oublié</h1>
+          <h1 className="text-2xl font-bold text-[#0D2B4E]">Mot de passe oublié</h1>
           <p className="text-slate-500 text-sm mt-1">Recevez un lien de réinitialisation par email</p>
         </div>
 

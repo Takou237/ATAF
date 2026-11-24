@@ -1,9 +1,12 @@
 import { useApi } from '../hooks/useApi';
 import { getPageContent } from '../lib/api';
 import PageBlocks from '../components/PageBlocks';
+import { useParams } from 'react-router-dom';
 
 export default function ContactPage() {
-  const { data, loading } = useApi(() => getPageContent('contact'), []);
+  const { section } = useParams();
+  const slug = section === 'compagnies-aeriennes' ? 'contact-compagnies-aeriennes' : 'contact';
+  const { data, loading } = useApi(() => getPageContent(slug), [slug]);
 
   if (loading) {
     return <div className="flex min-h-[60vh] items-center justify-center text-slate-400">Chargement…</div>;

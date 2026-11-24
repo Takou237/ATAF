@@ -1,12 +1,22 @@
 import { Link } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { useSiteSettings } from '../hooks/useSiteSettings';
-import { getEvents, getMembers, getNews, mediaUrl, type PageBlock, type PageBlockItem } from '../lib/api';
+import {
+  getEvents,
+  getMembers,
+  getNews,
+  getToken,
+  mediaUrl,
+  type MemberItem,
+  type PageBlock,
+  type PageBlockItem,
+} from '../lib/api';
 import ContactForm from './ContactForm';
 import NewsletterForm from './NewsletterForm';
+import FeatureIcon from './FeatureIcon';
 import { WIDGETS } from './widgets';
 
-const SERIF = { fontFamily: 'Instrument Serif, serif' } as const;
+const DEFAULT_PERSON_IMAGE = '/avatar-default.svg';
 
 const isExternal = (url: string): boolean => /^(https?:)?\/\//i.test(url) || /^(mailto|tel):/i.test(url);
 
@@ -53,7 +63,7 @@ function BlockHeading({ eyebrow, title }: { eyebrow?: string; title?: string }) 
   return (
     <div className="mb-10 text-center">
       {eyebrow && <p className="mb-2 text-sm font-medium uppercase tracking-wider text-[#3BAA35]">{eyebrow}</p>}
-      <h2 className="text-3xl font-bold text-[#0D2B4E]" style={SERIF}>
+      <h2 className="text-3xl font-bold text-[#0D2B4E]">
         {title}
       </h2>
     </div>
@@ -70,11 +80,11 @@ function HeroBlock({ block }: { block: PageBlock }) {
         <div className="absolute inset-0 bg-gradient-to-r from-[#0D2B4E]/90 via-[#0D2B4E]/70 to-transparent" />
         <div className="relative z-10 mx-auto w-full max-w-7xl px-6">
           <div className="max-w-2xl">
-            <h1 className="mb-4 text-5xl font-bold leading-tight text-white md:text-6xl" style={SERIF}>
+            <h1 className="mb-4 text-5xl font-bold leading-tight text-white md:text-6xl">
               {block.title}
             </h1>
             {block.subtitle && (
-              <p className="mb-3 text-xl font-light text-slate-200" style={SERIF}>
+              <p className="mb-3 text-xl font-light text-slate-200">
                 {block.subtitle}
               </p>
             )}
@@ -98,7 +108,7 @@ function HeroBlock({ block }: { block: PageBlock }) {
   return (
     <div className="bg-[#1A4F8A] py-14 text-white">
       <div className="mx-auto max-w-7xl px-6">
-        <h1 className="text-4xl font-bold" style={SERIF}>
+        <h1 className="text-4xl font-bold">
           {block.title}
         </h1>
         {block.subtitle && <p className="mt-2 text-lg text-blue-200">{block.subtitle}</p>}
@@ -121,7 +131,7 @@ function RichTextBlock({ block }: { block: PageBlock }) {
   return (
     <section className="mx-auto max-w-4xl px-6 py-14">
       {block.title && (
-        <h2 className="mb-6 text-2xl font-bold text-[#0D2B4E]" style={SERIF}>
+        <h2 className="mb-6 text-2xl font-bold text-[#0D2B4E]">
           {block.title}
         </h2>
       )}
@@ -133,8 +143,66 @@ function RichTextBlock({ block }: { block: PageBlock }) {
   );
 }
 
+function SplitBlock({ block }: { block: PageBlock }) {
+  const items = block.items ?? [];
+
+  return (
+    <section className="bg-white py-16">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-6 md:grid-cols-2">
+        <article className="ataf-hover-card rounded-2xl border border-slate-100 bg-white p-8">
+          <h2 className="ataf-hover-title mb-5 text-2xl font-bold text-[#0D2B4E]">{block.left_title}</h2>
+          <div
+            className="ataf-hover-text leading-relaxed text-slate-600 [&_a]:text-[#1A4F8A] [&_a]:underline [&_p]:mb-4"
+            dangerouslySetInnerHTML={{ __html: block.left_text ?? '' }}
+          />
+        </article>
+        <article className="ataf-hover-card rounded-2xl border border-slate-100 bg-white p-8">
+          <h2 className="ataf-hover-title mb-5 text-2xl font-bold text-[#0D2B4E]">{block.right_title}</h2>
+          <ul className="space-y-4">
+            {items.map((item, index) => (
+              <li key={`${item.title}-${index}`} className="flex items-start gap-3">
+                <span className="ataf-hover-icon mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1A4F8A]/10 text-xs font-bold text-[#1A4F8A]">
+                  {index + 1}
+                </span>
+                <span className="ataf-hover-text text-sm leading-relaxed text-slate-600">{item.title}</span>
+              </li>
+            ))}
+          </ul>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 function FeaturesBlock({ block }: { block: PageBlock }) {
   const items = block.items ?? [];
+  // `variant: 'solid'` est utilisé pour les services de l'accueil : cartes
+  // bleues, texte et icônes blancs, 2 par ligne puis 4 sur grand écran.
+  const solid = block.variant === 'solid' || (!block.variant && (block.title ?? '').toLowerCase().includes('service'));
+
+  if (solid) {
+    return (
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-7xl px-6">
+          <BlockHeading eyebrow={block.subtitle} title={block.title} />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {items.map((item, index) => (
+              <div
+                key={`${item.title}-${index}`}
+                className="rounded-xl bg-[#1A4F8A] p-6 text-white shadow-sm transition-colors hover:bg-[#12376A]"
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/15 text-white">
+                  <FeatureIcon name={item.title ?? item.icon} className="h-6 w-6" />
+                </div>
+                <h3 className="mb-2 font-semibold text-white">{item.title}</h3>
+                <p className="text-sm leading-relaxed text-white/80">{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-white py-16">
@@ -142,10 +210,12 @@ function FeaturesBlock({ block }: { block: PageBlock }) {
         <BlockHeading eyebrow={block.subtitle} title={block.title} />
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {items.map((item, index) => (
-            <div key={`${item.title}-${index}`} className="rounded-xl border border-slate-100 p-6 transition-shadow hover:shadow-md">
-              {item.icon && <div className="mb-4 text-3xl">{item.icon}</div>}
-              <h3 className="mb-2 font-semibold text-[#0D2B4E]">{item.title}</h3>
-              <p className="text-sm leading-relaxed text-slate-500">{item.text}</p>
+            <div key={`${item.title}-${index}`} className="ataf-hover-card rounded-xl border border-slate-100 bg-white p-6">
+              <div className="ataf-hover-icon mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#1A4F8A]/8 text-[#1A4F8A]">
+                <FeatureIcon name={item.title ?? item.icon} className="h-6 w-6" />
+              </div>
+              <h3 className="ataf-hover-title mb-2 font-semibold text-[#0D2B4E]">{item.title}</h3>
+              <p className="ataf-hover-text text-sm leading-relaxed text-slate-500">{item.text}</p>
             </div>
           ))}
         </div>
@@ -163,10 +233,13 @@ function StatsBlock({ block }: { block: PageBlock }) {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {items.map((item, index) => (
             <div key={`${item.label}-${index}`} className="text-center">
-              <div className="mb-1 text-4xl font-bold text-white" style={SERIF}>
+              <div className="mb-3 flex justify-center text-white">
+                <FeatureIcon name={item.icon ?? ['calendar', 'exchange', 'governance', 'training'][index]} className="h-7 w-7" />
+              </div>
+              <div className="mb-1 text-4xl font-bold text-white">
                 {item.value}
               </div>
-              <div className="text-sm text-blue-200">{item.label}</div>
+              <div className="text-sm text-white/80">{item.label}</div>
             </div>
           ))}
         </div>
@@ -181,7 +254,7 @@ function TimelineBlock({ block }: { block: PageBlock }) {
   return (
     <section className="mx-auto max-w-5xl px-6 py-16">
       {block.title && (
-        <h2 className="mb-10 text-center text-2xl font-bold text-[#0D2B4E]" style={SERIF}>
+        <h2 className="mb-10 text-center text-2xl font-bold text-[#0D2B4E]">
           {block.title}
         </h2>
       )}
@@ -212,18 +285,34 @@ function CardsBlock({ block }: { block: PageBlock }) {
       <BlockHeading eyebrow={block.subtitle} title={block.title} />
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => {
+          const image = item.image || (block.avatar ? DEFAULT_PERSON_IMAGE : undefined);
           const body = (
             <>
-              {item.image && (
-                <img src={mediaUrl(item.image)} alt={item.title ?? ''} className="mb-4 h-40 w-full rounded-lg object-cover" />
+              {image && (
+                <img
+                  src={mediaUrl(image)}
+                  alt={item.title ?? ''}
+                  className={`mb-4 object-cover ${block.avatar ? 'mx-auto h-28 w-28 rounded-full ring-4 ring-[#1A4F8A]/10' : 'h-40 w-full rounded-lg'}`}
+                />
               )}
-              <h3 className="font-bold text-[#0D2B4E]">{item.title}</h3>
-              {item.subtitle && <div className="mt-1 text-sm font-medium text-[#1A4F8A]">{item.subtitle}</div>}
-              {item.text && <p className="mt-2 text-sm leading-relaxed text-slate-500">{item.text}</p>}
+              <h3 className="ataf-hover-title font-bold text-[#0D2B4E]">{item.title}</h3>
+              {item.subtitle && <div className="ataf-hover-link mt-1 text-sm font-medium text-[#1A4F8A]">{item.subtitle}</div>}
+              {item.text && <p className="ataf-hover-text mt-2 text-sm leading-relaxed text-slate-500">{item.text}</p>}
+              {item.download_url && (
+                <a
+                  href={mediaUrl(item.download_url)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="ataf-hover-link mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#1A4F8A] hover:underline"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <span aria-hidden="true">↓</span> Télécharger le PDF
+                </a>
+              )}
             </>
           );
 
-          const className = 'rounded-xl border border-slate-100 p-6 transition-shadow hover:shadow-md';
+          const className = 'ataf-hover-card rounded-xl border border-slate-100 bg-white p-6';
 
           if (item.url && isExternal(item.url)) {
             return (
@@ -280,7 +369,7 @@ function CtaBlock({ block }: { block: PageBlock }) {
     <section className="bg-[#0D2B4E] py-16 text-white">
       <div className="mx-auto max-w-4xl px-6 text-center">
         {block.title && (
-          <h2 className="mb-4 text-3xl font-bold leading-tight" style={SERIF}>
+          <h2 className="mb-4 text-3xl font-bold leading-tight">
             {block.title}
           </h2>
         )}
@@ -296,7 +385,7 @@ function NewsletterBlock({ block }: { block: PageBlock }) {
     <section className="bg-white py-16">
       <div className="mx-auto max-w-2xl px-6 text-center">
         {block.title && (
-          <h2 className="mb-3 text-3xl font-bold text-[#0D2B4E]" style={SERIF}>
+          <h2 className="mb-3 text-3xl font-bold text-[#0D2B4E]">
             {block.title}
           </h2>
         )}
@@ -332,7 +421,7 @@ function NewsGridBlock({ block }: { block: PageBlock }) {
             <Link
               key={item.id}
               to={`/actualites/${item.id}`}
-              className="group overflow-hidden rounded-xl border border-slate-100 bg-white transition-shadow hover:shadow-lg"
+              className="ataf-hover-card group overflow-hidden rounded-xl border border-slate-100 bg-white"
             >
               <div className="aspect-[16/9] overflow-hidden bg-slate-100">
                 <img
@@ -348,7 +437,7 @@ function NewsGridBlock({ block }: { block: PageBlock }) {
                     {item.date ? new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
                   </span>
                 </div>
-                <h3 className="font-semibold leading-snug text-slate-800 transition-colors group-hover:text-[#1A4F8A]" style={SERIF}>
+                <h3 className="ataf-hover-title font-semibold leading-snug text-slate-800 transition-colors group-hover:text-[#1A4F8A]">
                   {item.title}
                 </h3>
                 <p className="mt-2 line-clamp-2 text-sm text-slate-500">{item.summary}</p>
@@ -379,7 +468,7 @@ function EventsGridBlock({ block }: { block: PageBlock }) {
               <Link
                 key={event.id}
                 to={`/evenements/${event.id}`}
-                className="group overflow-hidden rounded-xl border border-slate-100 bg-white transition-shadow hover:shadow-lg"
+                className="ataf-hover-card group overflow-hidden rounded-xl border border-slate-100 bg-white"
               >
                 <div className="flex items-start gap-4 bg-[#1A4F8A] px-6 py-5">
                   <div className="text-center">
@@ -391,7 +480,7 @@ function EventsGridBlock({ block }: { block: PageBlock }) {
                   </div>
                   <div>
                     <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/70">{event.type}</span>
-                    <h3 className="mt-1.5 font-semibold leading-snug text-white" style={SERIF}>
+                    <h3 className="mt-1.5 font-semibold leading-snug text-white">
                       {event.title}
                     </h3>
                   </div>
@@ -415,26 +504,53 @@ function EventsGridBlock({ block }: { block: PageBlock }) {
   );
 }
 
+function LogoRow({ items, reverse }: { items: MemberItem[]; reverse?: boolean }) {
+  return (
+    <div className="ataf-marquee">
+      <div className={`ataf-marquee-track ${reverse ? 'ataf-marquee-reverse' : ''}`}>
+        {[...items, ...items].map((member, index) => (
+          <Link
+            key={`${member.id}-${index}`}
+            to="/membres/annuaire"
+            title={member.name}
+            aria-hidden={index >= items.length}
+            className="ataf-logo mr-10 flex h-24 w-48 shrink-0 items-center justify-center md:mr-16 md:h-28 md:w-56"
+          >
+            {member.logo ? (
+              <img
+                src={member.logo}
+                alt={member.name}
+                loading="lazy"
+                className="max-h-16 w-auto max-w-full object-contain md:max-h-20"
+              />
+            ) : (
+              <span className="text-center text-sm font-medium text-slate-500">{member.name}</span>
+            )}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function MembersStripBlock({ block }: { block: PageBlock }) {
   const limit = Number(block.limit) || 10;
   const { data } = useApi(getMembers);
   const items = (data ?? []).slice(0, limit);
+  const middle = Math.ceil(items.length / 2);
+  const rows = [items.slice(0, middle), items.slice(middle)].filter((row) => row.length > 0);
 
   return (
-    <section className="border-y border-slate-100 bg-white py-16">
+    <section className="relative overflow-hidden border-y border-slate-100 bg-gradient-to-b from-white via-[#F8F9FC] to-white py-16">
       <div className="mx-auto max-w-7xl px-6">
         <BlockHeading eyebrow={block.subtitle} title={block.title} />
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          {items.map((member) => (
-            <Link
-              key={member.id}
-              to="/membres/annuaire"
-              className="rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:border-[#1A4F8A] hover:text-[#1A4F8A]"
-            >
-              {member.name}
-            </Link>
-          ))}
-        </div>
+      </div>
+      <div className="mt-2 space-y-4">
+        {rows.map((row, rowIndex) => (
+          <LogoRow key={rowIndex} items={row} reverse={rowIndex % 2 === 1} />
+        ))}
+      </div>
+      <div className="mx-auto max-w-7xl px-6">
         <BlockAction label={block.button_label} url={block.button_url} />
       </div>
     </section>
@@ -452,7 +568,7 @@ function ContactBlock({ block }: { block: PageBlock }) {
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
         <div className="space-y-6">
           <div>
-            <h2 className="mb-4 text-xl font-bold text-[#0D2B4E]" style={SERIF}>
+            <h2 className="mb-4 text-xl font-bold text-[#0D2B4E]">
               Secrétariat Général
             </h2>
             <div className="space-y-3 rounded-xl border border-slate-200 bg-[#F8F9FC] p-5">
@@ -484,7 +600,7 @@ function ContactBlock({ block }: { block: PageBlock }) {
         </div>
 
         <div className="lg:col-span-2">
-          <h2 className="mb-3 text-xl font-bold text-[#0D2B4E]" style={SERIF}>
+          <h2 className="mb-3 text-xl font-bold text-[#0D2B4E]">
             {block.title || 'Nous écrire'}
           </h2>
           {block.text && <p className="mb-6 text-slate-500">{block.text}</p>}
@@ -510,11 +626,27 @@ function WidgetBlock({ block }: { block: PageBlock }) {
 }
 
 function BlockView({ block }: { block: PageBlock }) {
+  if (block.members_only && !getToken()) {
+    return (
+      <section className="mx-auto max-w-3xl px-6 py-16 text-center">
+        <div className="rounded-2xl border border-[#1A4F8A]/15 bg-[#F8F9FC] p-10">
+          <h2 className="text-2xl font-bold text-[#0D2B4E]">Contenu réservé aux membres</h2>
+          <p className="mx-auto mt-3 max-w-xl text-slate-500">Connectez-vous à votre espace membres pour consulter ce contenu.</p>
+          <Link to="/espace-membres" className="mt-6 inline-flex rounded-md bg-[#1A4F8A] px-5 py-3 font-semibold text-white transition-colors hover:bg-[#12376A]">
+            Accéder à l’espace membres
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
   switch (block.type) {
     case 'hero':
       return <HeroBlock block={block} />;
     case 'rich_text':
       return <RichTextBlock block={block} />;
+    case 'split':
+      return <SplitBlock block={block} />;
     case 'features':
       return <FeaturesBlock block={block} />;
     case 'stats':

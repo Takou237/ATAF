@@ -40,6 +40,13 @@ export function getToken(): string | null {
   }
 }
 
+export function trackPageView(path: string, title?: string): void {
+  void request('/analytics/page-view', {
+    method: 'POST',
+    body: { path, title },
+  }).catch(() => undefined);
+}
+
 export function setToken(token: string | null): void {
   try {
     if (token) localStorage.setItem(TOKEN_KEY, token);
@@ -105,6 +112,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
 export type NewsItem = {
   id: number;
+  slug?: string;
   title: string;
   date: string;
   category: string;
@@ -112,6 +120,7 @@ export type NewsItem = {
   image: string;
   body?: string;
   isMembersOnly?: boolean;
+  downloadUrl?: string | null;
 };
 
 export type EventItem = {
@@ -171,11 +180,14 @@ export type PublicationItem = {
 
 export type DocumentItem = {
   id: number;
+  slug: string;
   code: string;
   title: string;
   org: string;
   date: string;
   downloadUrl: string | null;
+  category?: string;
+  published_on?: string;
 };
 
 export type ListParams = {
@@ -223,10 +235,12 @@ export type AuthUser = {
 
 type ApiNews = {
   id: number;
+  slug?: string | null;
   title: string;
   excerpt?: string | null;
   body?: string | null;
   image_path?: string | null;
+  attachment_path?: string | null;
   published_at?: string | null;
   is_members_only?: boolean;
   category?: { name: string } | null;
@@ -353,6 +367,7 @@ function paginateLocally<T>(items: T[], params: ListParams, perPage: number): Pa
 
 export const mapNews = (item: ApiNews): NewsItem => ({
   id: item.id,
+  slug: str(item.slug) || String(item.id),
   title: str(item.title),
   date: dateOnly(item.published_at),
   category: str(item.category?.name) || 'Actualité',
@@ -360,6 +375,9 @@ export const mapNews = (item: ApiNews): NewsItem => ({
   image: mediaUrl(item.image_path) || FALLBACK_IMAGE,
   body: item.body ?? undefined,
   isMembersOnly: item.is_members_only ?? false,
+  downloadUrl: item.attachment_path && item.slug
+    ? `${API_URL}/news/${encodeURIComponent(item.slug)}/download`
+    : null,
 });
 
 export const mapEvent = (item: ApiEvent): EventItem => ({
@@ -430,7 +448,7 @@ async function withFallback<T>(loader: () => Promise<T>, fallback: T, label: str
 
 export function getNews(params: ListParams = {}): Promise<NewsItem[]> {
   return withFallback(
-    async () => (await request<ApiNews[]>(`/news${toQuery(params)}`)).map(mapNews),
+    async () => (await request<ApiNews[]>(`/news${toQuery(params)}`, { auth: Boolean(getToken()) })).map(mapNews),
     staticNews,
     'actualités',
   );
@@ -442,6 +460,7 @@ export async function getNewsPage(params: ListParams = {}): Promise<Paginated<Ne
   try {
     const payload = await request<ApiPaginator<ApiNews>>(
       `/news${toQuery({ ...params, perPage, page: params.page ?? 1 })}`,
+      { auth: Boolean(getToken()) },
     );
 
     return {
@@ -512,6 +531,7 @@ export function getPublications(params: ListParams = {}): Promise<PublicationIte
 
 const mapDocument = (item: ApiDocument): DocumentItem => ({
   id: item.id,
+  slug: item.slug,
   code: str(item.category) || str(item.type) || 'Document',
   title: str(item.title),
   org: str(item.type) || 'ATAF',
@@ -712,6 +732,44 @@ export async function logout(): Promise<void> {
   }
 }
 
+export function updateProfile(data: { name: string; organisation?: string; phone?: string; password?: string }): Promise<{ message: string; user: AuthUser }> {
+  return request('/auth/me', { method: 'PUT', body: data, auth: true });
+}
+
+export function getMyRegistrations(): Promise<Array<{ id: number; event_id: number; status: string; created_at: string; event?: EventItem }>> {
+  return request('/auth/me/registrations', { auth: true });
+}
+
+export function getMyDocuments(): Promise<DocumentItem[]> {
+  return request<ApiDocument[]>('/auth/me/documents', { auth: true }).then((items) =>
+    items.map((item) => ({
+      ...mapDocument(item),
+      downloadUrl: item.file_path ? `${API_URL}/auth/me/documents/${encodeURIComponent(item.slug)}/download` : null,
+    })),
+  );
+}
+
+export async function fetchMemberDocument(slug: string): Promise<Blob> {
+  const token = getToken();
+  const response = await fetch(`${API_URL}/auth/me/documents/${encodeURIComponent(slug)}/download`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, 'Le document est indisponible.');
+  }
+
+  return response.blob();
+}
+
+export function getAgencyAttestationUrl(number: string): string {
+  return `${API_URL}/agencies/${encodeURIComponent(number)}/attestation`;
+}
+
+export function downloadDocumentUrl(slug: string): string {
+  return `${API_URL}/documents/${encodeURIComponent(slug)}/download`;
+}
+
 /* ------------------------------------------------------------------ */
 /* Pages éditoriales (CMS par blocs)                                   */
 /* ------------------------------------------------------------------ */
@@ -726,6 +784,7 @@ export type PageBlockItem = {
   icon?: string;
   url?: string;
   image?: string;
+  download_url?: string;
 };
 
 export type PageBlock = {
@@ -740,6 +799,13 @@ export type PageBlock = {
   button_label?: string;
   button_url?: string;
   limit?: number | string;
+  variant?: string;
+  avatar?: boolean;
+  members_only?: boolean;
+  left_title?: string;
+  left_text?: string;
+  right_title?: string;
+  right_items?: PageBlockItem[];
   items?: PageBlockItem[];
 };
 
@@ -806,11 +872,11 @@ const staticEvents: EventItem[] = rawEvents.map((event) => ({
 }));
 
 const staticDocuments: DocumentItem[] = [
-  { id: 1, code: 'ICAO Annex 14 – Ed. 9', title: 'Aérodromes — Volume I : Conception et exploitation des aérodromes', org: 'ICAO', date: '2026-01-01', downloadUrl: null },
-  { id: 2, code: 'ICAO Doc 8168', title: 'Exploitation des aéronefs — Procédures de navigation aérienne', org: 'ICAO', date: '2025-07-01', downloadUrl: null },
-  { id: 3, code: 'IATA DGR 65th Edition', title: 'Réglementations sur les marchandises dangereuses', org: 'IATA', date: '2024-01-01', downloadUrl: null },
-  { id: 4, code: 'EU Reg 2026/1234', title: 'Règlement européen sur le transport aérien international', org: 'UE', date: '2026-08-01', downloadUrl: null },
-  { id: 5, code: 'ASECNA Circ. 2026-14', title: "Circulaire sur les procédures d'approche aux instruments", org: 'ASECNA', date: '2026-06-15', downloadUrl: null },
+  { id: 1, slug: 'icao-annex-14', code: 'ICAO Annex 14 – Ed. 9', title: 'Aérodromes — Volume I : Conception et exploitation des aérodromes', org: 'ICAO', date: '2026-01-01', downloadUrl: null },
+  { id: 2, slug: 'icao-doc-8168', code: 'ICAO Doc 8168', title: 'Exploitation des aéronefs — Procédures de navigation aérienne', org: 'ICAO', date: '2025-07-01', downloadUrl: null },
+  { id: 3, slug: 'iata-dgr-65', code: 'IATA DGR 65th Edition', title: 'Réglementations sur les marchandises dangereuses', org: 'IATA', date: '2024-01-01', downloadUrl: null },
+  { id: 4, slug: 'eu-reg-2026-1234', code: 'EU Reg 2026/1234', title: 'Règlement européen sur le transport aérien international', org: 'UE', date: '2026-08-01', downloadUrl: null },
+  { id: 5, slug: 'asecna-circ-2026-14', code: 'ASECNA Circ. 2026-14', title: "Circulaire sur les procédures d'approche aux instruments", org: 'ASECNA', date: '2026-06-15', downloadUrl: null },
 ];
 
 const staticPublications: PublicationItem[] = [

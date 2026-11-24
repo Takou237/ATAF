@@ -93,7 +93,7 @@ function EventDetail({ id }: { id: number }) {
             <span className="text-xs font-medium bg-[#3BAA35] px-3 py-1 rounded-full">{ev.type}</span>
             <span className={`text-xs font-medium px-3 py-1 rounded-full ${statusColors[ev.status]}`}>{ev.status}</span>
           </div>
-          <h1 className="text-4xl font-bold" style={{ fontFamily: 'Instrument Serif, serif' }}>{ev.title}</h1>
+          <h1 className="text-4xl font-bold">{ev.title}</h1>
           <div className="flex flex-wrap gap-6 mt-4 text-blue-200 text-sm">
             <span>📅 {d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} à {ev.time}</span>
             <span>📍 {ev.location}</span>

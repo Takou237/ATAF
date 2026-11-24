@@ -49,7 +49,7 @@ export default function ReinitialiserMotDePassePage() {
     <div className="min-h-[80vh] flex items-center justify-center bg-[#F8F9FC] px-6 py-16">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-[#0D2B4E]" style={{ fontFamily: 'Instrument Serif, serif' }}>Nouveau mot de passe</h1>
+          <h1 className="text-2xl font-bold text-[#0D2B4E]">Nouveau mot de passe</h1>
           <p className="text-slate-500 text-sm mt-1">Choisissez un mot de passe d'au moins 8 caractères</p>
         </div>
 

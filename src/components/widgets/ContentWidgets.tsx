@@ -18,7 +18,6 @@ import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import ApiErrorNotice from '../ApiErrorNotice';
 import type { WidgetProps } from './types';
 
-const SERIF = { fontFamily: 'Instrument Serif, serif' } as const;
 
 const loadMoreClass =
   'px-6 py-3 border border-[#1A4F8A]/20 text-[#1A4F8A] rounded-md text-sm font-medium hover:bg-[#1A4F8A] hover:text-white transition-colors disabled:opacity-60';
@@ -403,6 +402,7 @@ export function NewsList({ block }: WidgetProps) {
                     <span className="text-xs text-slate-400">
                       {new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
+                    {item.downloadUrl && <span className="ml-auto rounded bg-[#1A4F8A]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[#1A4F8A]">PDF</span>}
                   </div>
                   <h3 className="font-semibold text-slate-800 leading-snug group-hover:text-[#1A4F8A] transition-colors line-clamp-2">
                     {item.title}
@@ -658,7 +658,7 @@ export function RegulationsNotes() {
                 <span className={`text-xs font-medium px-2.5 py-1 rounded-md ${typeColors[n.type] || 'bg-slate-100 text-slate-600'}`}>
                   {n.type}
                 </span>
-                <h3 className="font-semibold text-[#0D2B4E] mt-2 mb-2" style={SERIF}>{n.title}</h3>
+                <h3 className="font-semibold text-[#0D2B4E] mt-2 mb-2">{n.title}</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">{n.summary}</p>
                 <p className="text-xs text-slate-400 mt-2">
                   {new Date(n.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} · {n.category}

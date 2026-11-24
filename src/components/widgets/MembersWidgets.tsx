@@ -77,10 +77,14 @@ export function MembersDirectory() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((m) => (
-          <div key={m.id} className="bg-white border border-slate-100 rounded-xl p-5 hover:shadow-md transition-shadow">
+          <div key={m.id} className="ataf-hover-card bg-white border border-slate-100 rounded-xl p-5">
             <div className="flex items-start justify-between mb-3">
-              <div className="w-10 h-10 rounded-full bg-[#1A4F8A]/10 flex items-center justify-center text-[#1A4F8A] font-bold text-sm">
-                {(m.name || '?').charAt(0)}
+              <div className="w-10 h-10 rounded-full bg-[#1A4F8A]/10 flex items-center justify-center text-[#1A4F8A] font-bold text-sm overflow-hidden">
+                {m.logo ? (
+                  <img src={m.logo} alt={m.name} loading="lazy" className="h-full w-full object-contain p-1" />
+                ) : (
+                  (m.name || '?').charAt(0)
+                )}
               </div>
               <span
                 className={`text-xs px-2 py-0.5 rounded-full ${
@@ -172,10 +176,14 @@ export function PartnersGrid() {
       {error && <ApiErrorNotice message={error} onRetry={reload} className="mb-6" />}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {partners.map((p) => (
-          <div key={p.id} className="border border-slate-100 rounded-xl p-5 hover:shadow-md transition-shadow">
+          <div key={p.id} className="ataf-hover-card border border-slate-100 rounded-xl p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-[#3BAA35]/10 flex items-center justify-center text-[#3BAA35] font-bold">
-                {(p.name || '?').charAt(0)}
+              <div className="w-10 h-10 rounded-full bg-[#3BAA35]/10 flex items-center justify-center text-[#3BAA35] font-bold overflow-hidden">
+                {p.logo ? (
+                  <img src={p.logo} alt={p.name} loading="lazy" className="h-full w-full object-contain p-1" />
+                ) : (
+                  (p.name || '?').charAt(0)
+                )}
               </div>
               <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">{p.category || 'Membre'}</span>
             </div>
@@ -239,8 +247,24 @@ export function MembershipForm() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 pb-16">
-      <form onSubmit={handleSubmit} className="relative space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="mx-auto max-w-7xl px-6 pb-16">
+      <div className="grid gap-8 lg:grid-cols-[320px_1fr] lg:items-start">
+        <aside className="space-y-6 lg:sticky lg:top-24">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wider text-[#3BAA35]">Adhésion ATAF</p>
+            <h3 className="mt-2 text-2xl font-bold text-[#0D2B4E]">Rejoindre le réseau</h3>
+            <p className="mt-3 text-sm leading-relaxed text-slate-500">
+              Remplissez ce formulaire pour que le Secrétariat Général étudie votre demande et vous accompagne dans votre adhésion.
+            </p>
+          </div>
+          <div className="space-y-2 rounded-xl border border-slate-200 bg-[#F8F9FC] p-5 text-sm text-slate-600">
+            <p className="font-semibold text-[#0D2B4E]">Besoin d’aide ?</p>
+            <p>Le Secrétariat Général reste à votre disposition.</p>
+            <a href="mailto:sg@ataf.fr" className="inline-block font-medium text-[#1A4F8A] hover:underline">sg@ataf.fr</a>
+          </div>
+        </aside>
+
+      <form onSubmit={handleSubmit} className="relative space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-10">
         <Honeypot id="membership-website" value={website} onChange={setWebsite} />
         <h3 className="font-semibold text-[#0D2B4E]">Formulaire de demande d'adhésion</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -330,6 +354,7 @@ export function MembershipForm() {
           {sending ? 'Envoi en cours…' : "Envoyer ma demande d'adhésion"}
         </button>
       </form>
+      </div>
     </div>
   );
 }

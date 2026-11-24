@@ -5,6 +5,7 @@ export type NavItem = {
 };
 
 export const DEFAULT_NAV: NavItem[] = [
+  { label: 'Accueil', path: '/' },
   { label: "L'ATAF", path: '/ataf', children: [
     { label: 'Présentation', path: '/ataf/presentation' },
     { label: 'Missions', path: '/ataf/missions' },
@@ -48,7 +49,10 @@ export const DEFAULT_NAV: NavItem[] = [
     { label: 'Publications', path: '/ressources/publications' },
     { label: 'Médiathèque', path: '/ressources/mediatheque' },
   ] },
-  { label: 'Contact', path: '/contact' },
+  { label: 'Contact', path: '/contact', children: [
+    { label: 'Secrétariat Général', path: '/contact' },
+    { label: 'Compagnies aériennes', path: '/contact/compagnies-aeriennes' },
+  ] },
 ];
 
 /** Lit la navigation enregistrée dans les réglages ; retombe sur le menu par défaut. */

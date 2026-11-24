@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getAgencies, submitAgencyApplication, verifyAgency, type AgencyItem } from '../../lib/api';
+import { getAgencies, getAgencyAttestationUrl, submitAgencyApplication, verifyAgency, type AgencyItem } from '../../lib/api';
 import { useApi } from '../../hooks/useApi';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
@@ -187,6 +187,16 @@ export function AgencyVerify() {
                   <span className="font-medium text-[#0D2B4E]">{value}</span>
                 </div>
               ))}
+            </div>
+            <div className="mt-4 pt-3 border-t border-[#3BAA35]/20 text-center">
+              <a
+                href={getAgencyAttestationUrl(foundAgency.code)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#1A4F8A] text-white rounded-md text-xs font-medium hover:bg-[#12376A] transition-colors"
+              >
+                <span>📜</span> Télécharger l'Attestation Officielle (PDF)
+              </a>
             </div>
           </div>
         )}
