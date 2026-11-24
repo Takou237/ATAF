@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { installHoverFx } from './lib/hoverFx';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import HomePage from './pages/HomePage';
@@ -26,6 +27,11 @@ function PageBoundary({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
+  // Lueur qui suit la souris + inclinaison 3D des cartes (une seule fois).
+  useEffect(() => {
+    installHoverFx();
+  }, []);
+
   return (
     <BrowserRouter>
       <Layout>
@@ -63,6 +69,7 @@ export default function App() {
 
           {/* Contact */}
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/contact/:section" element={<ContactPage />} />
 
           {/* Espace membres */}
           <Route path="/espace-membres" element={<EspaceMembresPage />} />

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 @theme {
@@ -13,7 +13,6 @@
   --color-border: #E2E8F0;
 
   --font-sans: 'Inter', system-ui, sans-serif;
-  --font-serif: 'Instrument Serif', Georgia, serif;
 }
 
 * {
@@ -36,3 +35,353 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ------------------------------------------------------------------ */
+/* Survol des cartes                                                   */
+/* 1. une lumière verte suit le curseur à l’intérieur de la carte       */
+/* 2. la carte s’incline légèrement en 3D dans le sens du mouvement     */
+/* 3. un faisceau lumineux parcourt sans fin le contour de la carte     */
+/* ------------------------------------------------------------------ */
+
+@property --ataf-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.ataf-hover-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    background-color 320ms ease,
+    border-color 320ms ease,
+    color 320ms ease,
+    box-shadow 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Fond bleu nuit, trame technique discrète et halo qui suit la souris.
+   --mx / --my sont mis à jour par src/lib/hoverFx.ts. */
+.ataf-hover-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    radial-gradient(
+      320px circle at var(--mx, 50%) var(--my, 50%),
+      rgb(90 214 84 / 26%),
+      transparent 68%
+    ),
+    radial-gradient(120% 100% at 0% 0%, rgb(59 170 53 / 22%), transparent 44%),
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 4%) 0 1px, transparent 1px 30px),
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 4%) 0 1px, transparent 1px 30px),
+    linear-gradient(135deg, #1a4f8a 0%, #12376a 56%, #0d2b4e 100%);
+  opacity: 0;
+  transform: scale(1.05);
+  transition:
+    opacity 340ms ease,
+    transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Faisceau lumineux : un dégradé conique masqué pour ne garder que le
+   contour, puis animé via @property pour faire le tour de la carte. */
+.ataf-hover-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--ataf-angle),
+    transparent 0turn,
+    transparent 0.52turn,
+    rgb(59 170 53 / 85%) 0.66turn,
+    #a8ff9f 0.72turn,
+    rgb(46 123 224 / 90%) 0.82turn,
+    transparent 0.94turn
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 380ms ease;
+  pointer-events: none;
+}
+
+.ataf-hover-card:hover {
+  background-color: #12376a;
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow:
+    0 34px 60px -26px rgb(13 43 78 / 55%),
+    0 16px 30px -18px rgb(59 170 53 / 34%),
+    inset 0 1px 0 rgb(255 255 255 / 22%);
+  transform:
+    perspective(1200px)
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg))
+    translateY(-7px)
+    scale(1.012);
+}
+
+.ataf-hover-card:hover::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ataf-hover-card:hover::after {
+  opacity: 1;
+  animation: ataf-border-travel 3.6s linear infinite;
+}
+
+@keyframes ataf-border-travel {
+  to { --ataf-angle: 1turn; }
+}
+
+.ataf-hover-card:hover .ataf-hover-title,
+.ataf-hover-card:hover .ataf-hover-link {
+  color: #ffffff !important;
+}
+
+.ataf-hover-card:hover .ataf-hover-text {
+  color: rgb(255 255 255 / 80%) !important;
+}
+
+/* Les liens internes restent lisibles sur le fond bleu. */
+.ataf-hover-card:hover a {
+  color: #ffffff !important;
+}
+
+.ataf-hover-card:hover a .ataf-hover-text {
+  color: rgb(255 255 255 / 80%) !important;
+}
+
+/* L’icône pivote, grossit et s’entoure d’un halo vert. */
+.ataf-hover-card:hover .ataf-hover-icon {
+  background-color: rgb(255 255 255 / 18%) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 22%),
+    0 12px 26px -10px rgb(77 194 71 / 70%);
+  transform: rotate(-8deg) scale(1.14);
+}
+
+.ataf-hover-icon {
+  transition:
+    background-color 320ms ease,
+    color 320ms ease,
+    box-shadow 420ms ease,
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Les visuels (photos, logos, avatars) zooment et gagnent en éclat. */
+.ataf-hover-card img {
+  transition:
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 700ms ease;
+}
+
+.ataf-hover-card:hover img {
+  filter: saturate(1.06) brightness(1.03);
+  transform: scale(1.06);
+}
+
+/* Bandeau de logos : deux rangées qui glissent en sens opposés.
+   La piste contient les logos en double et se décale de -50 % :
+   la boucle est donc parfaitement continue. */
+.ataf-marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.ataf-marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  animation: ataf-marquee 95s linear infinite;
+  will-change: transform;
+}
+
+.ataf-marquee-reverse {
+  animation-direction: reverse;
+  animation-duration: 115s;
+}
+
+/* Au survol on met le bandeau en pause : le logo sous le curseur ne change
+   plus de place, on peut le lire tranquillement. */
+.ataf-marquee:hover .ataf-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes ataf-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* Logo du bandeau : légèrement désaturé au repos, il reprend ses couleurs,
+   se soulève et s’entoure d’un halo au survol. */
+.ataf-logo {
+  position: relative;
+  isolation: isolate;
+  opacity: 0.82;
+  filter: grayscale(0.35) saturate(0.95);
+  transition:
+    opacity 360ms ease,
+    filter 420ms ease,
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ataf-logo::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8rem;
+  height: 8rem;
+  z-index: -1;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgb(26 79 138 / 16%), rgb(26 79 138 / 0%) 70%);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  transition:
+    opacity 360ms ease,
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.ataf-logo img {
+  transition: filter 420ms ease;
+}
+
+.ataf-logo:hover {
+  opacity: 1;
+  filter: none;
+  transform: translateY(-6px) scale(1.1);
+}
+
+.ataf-logo:hover::before {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.ataf-logo:hover img {
+  filter: drop-shadow(0 10px 16px rgb(13 43 78 / 22%));
+}
+
+/* ------------------------------------------------------------------ */
+/* Réseaux sociaux                                                     */
+/* Pastilles blanches rondes : au survol, la couleur de la marque       */
+/* remonte du bas et l’icône Font Awesome pivote une fois sur elle-même. */
+/* ------------------------------------------------------------------ */
+.ataf-social {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ataf-social li {
+  list-style: none;
+}
+
+.ataf-social a {
+  --ataf-social-size: 2.5rem;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--ataf-social-size);
+  height: var(--ataf-social-size);
+  border: 2px solid #fff;
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: #fff;
+  color: #0d2b4e;
+  font-size: calc(var(--ataf-social-size) * 0.4);
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 380ms ease,
+    border-color 380ms ease;
+}
+
+.ataf-social a:focus-visible {
+  outline: 2px solid #4dc247;
+  outline-offset: 2px;
+}
+
+.ataf-social a .fab {
+  position: relative;
+  z-index: 2;
+  transition:
+    color 450ms ease,
+    transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Volet coloré qui attend sous la pastille puis remonte. */
+.ataf-social a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: #1a4f8a;
+  transition: top 450ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ataf-social a:hover,
+.ataf-social a:focus-visible {
+  border-color: transparent;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px -8px rgb(0 0 0 / 45%);
+}
+
+.ataf-social a:hover::before,
+.ataf-social a:focus-visible::before {
+  top: 0;
+}
+
+.ataf-social a:hover .fab,
+.ataf-social a:focus-visible .fab {
+  color: #fff;
+  transform: rotateY(360deg);
+}
+
+/* Couleurs officielles de chaque réseau. */
+.ataf-social a[data-network='linkedin']::before { background: #0077b5; }
+.ataf-social a[data-network='facebook']::before { background: #3b5999; }
+.ataf-social a[data-network='x']::before { background: #0f1419; }
+
+/* Version compacte de la barre supérieure. */
+.ataf-social--compact {
+  gap: 0.35rem;
+}
+
+.ataf-social--compact a {
+  --ataf-social-size: 1.75rem;
+}
+
+/* Si le système demande moins d'animations, seul le faisceau qui tourne en
+   boucle est figé : l'inclinaison et la lumière restent, car elles suivent
+   directement la souris et ne tournent pas toutes seules. */
+@media (prefers-reduced-motion: reduce) {
+  .ataf-hover-card:hover::after { animation: none; }
+  .ataf-hover-card,
+  .ataf-hover-card img,
+  .ataf-logo,
+  .ataf-logo img { transition-duration: 120ms; }
+}

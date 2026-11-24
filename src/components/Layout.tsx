@@ -1,10 +1,41 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logoImg from '../imports/LOGO-UPDATE-ATAG-1.png';
-import { subscribeNewsletter } from '../lib/api';
+import { subscribeNewsletter, trackPageView } from '../lib/api';
 import { parseNavigation } from '../lib/navigation';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import Honeypot from './Honeypot';
+
+const SOCIAL_LINKS = [
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/association-internationale-de-transporteurs-a%C3%A9riens-ataf/?viewAsMember=true', network: 'linkedin', icon: 'fa-linkedin-in' },
+  { label: 'Facebook', href: 'https://www.facebook.com/associationatafdetransportsaeriens/', network: 'facebook', icon: 'fa-facebook-f' },
+  { label: 'X (Twitter)', href: 'https://x.com/AssociationATAF', network: 'x', icon: 'fa-twitter' },
+];
+
+/** Pastilles rondes : au survol la couleur du réseau remonte du bas et
+ *  l’icône pivote sur elle-même (styles dans src/index.css). */
+function SocialLinks({ compact = false }: { compact?: boolean }) {
+  return (
+    <ul
+      className={`ataf-social ${compact ? 'ataf-social--compact' : ''}`}
+      aria-label="Réseaux sociaux ATAF"
+    >
+      {SOCIAL_LINKS.map((social) => (
+        <li key={social.label}>
+          <a
+            href={social.href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={social.label}
+            data-network={social.network}
+          >
+            <i className={`fab ${social.icon}`} aria-hidden="true" />
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
@@ -51,6 +82,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setOpenDropdown(null);
   }, [location.pathname]);
 
+  useEffect(() => {
+    trackPageView(location.pathname, document.title);
+  }, [location.pathname]);
+
   return (
     <div className="min-h-screen flex flex-col" translate="no">
       {/* Top bar */}
@@ -58,6 +93,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <span className="hidden sm:inline">Association des Transporteurs Aériens Francophones — fondée en 1950</span>
         <span className="sm:hidden">ATAF — depuis 1950</span>
         <div className="flex items-center gap-3">
+          <SocialLinks compact />
+          <span className="opacity-30">|</span>
           {/* Espace membres green button */}
           <Link
             to="/espace-membres"
@@ -182,17 +219,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <img src={logoImg} alt="ATAF" className="h-8 w-auto brightness-0 invert" />
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">{footerAbout}</p>
-              <div className="mt-4 flex gap-3">
-                <a href="#" className="w-8 h-8 bg-white/10 rounded flex items-center justify-center hover:bg-[#3BAA35] transition-colors">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-                </a>
-                <a href="#" className="w-8 h-8 bg-white/10 rounded flex items-center justify-center hover:bg-[#3BAA35] transition-colors">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
-                </a>
-              </div>
+              <div className="mt-4"><SocialLinks /></div>
             </div>
             <div>
-              <h4 className="font-semibold text-sm uppercase tracking-wider text-slate-300 mb-4" style={{ fontFamily: 'Instrument Serif, serif' }}>L'ATAF</h4>
+              <h4 className="font-semibold text-sm uppercase tracking-wider text-slate-300 mb-4">L'ATAF</h4>
               <ul className="space-y-2 text-sm text-slate-400">
                 {[['Présentation', '/ataf/presentation'], ['Missions', '/ataf/missions'], ['Histoire', '/ataf/histoire'], ['Gouvernance', '/ataf/gouvernance'], ['Organigramme', '/ataf/organigramme']].map(([l, p]) => (
                   <li key={l}><Link to={p} className="hover:text-white transition-colors">{l}</Link></li>
@@ -200,7 +230,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-sm uppercase tracking-wider text-slate-300 mb-4" style={{ fontFamily: 'Instrument Serif, serif' }}>Navigation</h4>
+              <h4 className="font-semibold text-sm uppercase tracking-wider text-slate-300 mb-4">Navigation</h4>
               <ul className="space-y-2 text-sm text-slate-400">
                 {[['Membres', '/membres/annuaire'], ['Actualités', '/actualites'], ['Événements', '/evenements/agenda'], ['Nos agences', '/agences/annuaire'], ['Réglementation', '/reglementation/veille'], ['Contact', '/contact']].map(([l, p]) => (
                   <li key={l}><Link to={p} className="hover:text-white transition-colors">{l}</Link></li>
@@ -208,7 +238,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-sm uppercase tracking-wider text-slate-300 mb-4" style={{ fontFamily: 'Instrument Serif, serif' }}>Contact</h4>
+              <h4 className="font-semibold text-sm uppercase tracking-wider text-slate-300 mb-4">Contact</h4>
               <ul className="space-y-2 text-sm text-slate-400">
                 <li>{contactAddress}</li>
                 <li className="pt-1"><a href={`mailto:${contactEmail}`} className="hover:text-white transition-colors">{contactEmail}</a></li>
