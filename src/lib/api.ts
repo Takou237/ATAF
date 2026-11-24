@@ -10,14 +10,15 @@ const defaultApiUrl = (): string => {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
     if (host && host !== 'localhost' && host !== '127.0.0.1') {
-      return `http://${host}:8000/api`;
+      return 'https://ataf-production.up.railway.app/api';
     }
   }
 
   return 'http://localhost:8000/api';
 };
 
-const API_URL: string = (import.meta.env.VITE_API_URL as string | undefined) ?? defaultApiUrl();
+const rawApiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+const API_URL: string = (rawApiUrl && rawApiUrl.length > 0) ? rawApiUrl : defaultApiUrl();
 
 const TOKEN_KEY = 'ataf_token';
 

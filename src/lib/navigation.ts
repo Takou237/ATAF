@@ -63,7 +63,7 @@ export function parseNavigation(raw?: string): NavItem[] {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_NAV;
 
-    return parsed
+    const list = parsed
       .filter((item: unknown): item is NavItem => {
         const entry = item as NavItem;
         return Boolean(entry?.label && entry?.path);
@@ -72,6 +72,12 @@ export function parseNavigation(raw?: string): NavItem[] {
         ...item,
         children: Array.isArray(item.children) ? item.children : [],
       }));
+
+    if (!list.some((item) => item.path === '/')) {
+      list.unshift({ label: 'Accueil', path: '/' });
+    }
+
+    return list;
   } catch {
     return DEFAULT_NAV;
   }
