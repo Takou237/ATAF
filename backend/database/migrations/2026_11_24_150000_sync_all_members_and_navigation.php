@@ -62,7 +62,7 @@ return new class extends Migration
             if (! $country) {
                 $countryId = DB::table('countries')->insertGetId([
                     'name' => $data['country'],
-                    'code' => strtoupper(substr(Str::slug($data['country']), 0, 3)),
+                    'code' => strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', Str::slug($data['country'])), 0, 2)),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ]);
