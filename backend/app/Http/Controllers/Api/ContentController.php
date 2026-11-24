@@ -106,6 +106,8 @@ class ContentController extends Controller
 
         if ($request->boolean('members_only')) {
             $query->where('is_members_only', true);
+        } elseif (! auth('sanctum')->check()) {
+            $query->where('is_members_only', false);
         }
 
         return $this->respond($request, $query->orderByDesc('published_at'));
@@ -114,8 +116,21 @@ class ContentController extends Controller
     public function newsItem(News $news): JsonResponse
     {
         abort_unless($news->status === 'published' && $news->published_at?->isPast(), 404);
+        abort_if($news->is_members_only && ! auth('sanctum')->check(), 404);
 
         return response()->json($news->load('category:id,name', 'tags:id,name,slug'));
+    }
+
+    public function downloadNewsAttachment(News $news): BinaryFileResponse|JsonResponse
+    {
+        abort_unless($news->status === 'published' && $news->published_at?->isPast(), 404);
+        abort_if($news->is_members_only && ! auth('sanctum')->check(), 404);
+
+        if (! $news->attachment_path || ! is_file(storage_path('app/public/'.$news->attachment_path))) {
+            return response()->json(['message' => 'Document indisponible pour le moment.'], 404);
+        }
+
+        return response()->file(storage_path('app/public/'.$news->attachment_path));
     }
 
     public function events(Request $request): JsonResponse
@@ -282,5 +297,12 @@ class ContentController extends Controller
     public function media(): JsonResponse
     {
         return response()->json(MediaItem::query()->orderBy('position')->get());
+    }
+
+    public function attestation(string $number)
+    {
+        $agency = Agency::query()->where('agreement_number', trim($number))->firstOrFail();
+
+        return response()->view('attestation', ['agency' => $agency]);
     }
 }
