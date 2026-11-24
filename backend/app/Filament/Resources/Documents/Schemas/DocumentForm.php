@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Documents\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
@@ -21,7 +22,12 @@ class DocumentForm
                 TextInput::make('type')
                     ->required()
                     ->default('PDF'),
-                TextInput::make('file_path'),
+                FileUpload::make('file_path')
+                    ->label('Fichier PDF')
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->disk('public')
+                    ->directory('documents')
+                    ->visibility('public'),
                 TextInput::make('file_size')
                     ->numeric(),
                 Toggle::make('is_public')

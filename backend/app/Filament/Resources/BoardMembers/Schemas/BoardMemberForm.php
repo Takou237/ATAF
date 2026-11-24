@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\BoardMembers\Schemas;
 
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class BoardMemberForm
@@ -19,7 +20,12 @@ class BoardMemberForm
                 TextInput::make('company'),
                 Textarea::make('bio')
                     ->columnSpanFull(),
-                TextInput::make('photo_path'),
+                FileUpload::make('photo_path')
+                    ->label('Photo')
+                    ->image()
+                    ->disk('public')
+                    ->directory('board-members')
+                    ->visibility('public'),
                 TextInput::make('group')
                     ->required()
                     ->default('board'),

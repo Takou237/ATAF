@@ -6,8 +6,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -57,6 +57,13 @@ class NewsForm
                     ->directory('news')
                     ->visibility('public')
                     ->imageEditor(),
+                FileUpload::make('attachment_path')
+                    ->label('Document PDF (communiqué)')
+                    ->helperText('Joindre le PDF officiel pour le rendre téléchargeable depuis le site.')
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->disk('public')
+                    ->directory('news/documents')
+                    ->visibility('public'),
                 TextInput::make('author')
                     ->label('Auteur'),
                 DateTimePicker::make('published_at')

@@ -6,8 +6,9 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
@@ -16,6 +17,7 @@ class PageForm
     public const BLOCK_TYPES = [
         'hero' => 'Bannière de page',
         'rich_text' => 'Texte libre',
+        'split' => 'Présentation + objectifs en deux colonnes',
         'features' => 'Cartes de présentation (services, missions)',
         'stats' => 'Chiffres clés',
         'timeline' => 'Chronologie',
@@ -119,6 +121,16 @@ class PageForm
                             ->label('Texte d’introduction')
                             ->rows(3)
                             ->visible($visibleFor(['hero', 'cta', 'newsletter', 'contact'])),
+                        TextInput::make('left_title')
+                            ->label('Titre de la colonne gauche')
+                            ->visible($visibleFor(['split'])),
+                        RichEditor::make('left_text')
+                            ->label('Contenu de la colonne gauche')
+                            ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'link'])
+                            ->visible($visibleFor(['split'])),
+                        TextInput::make('right_title')
+                            ->label('Titre de la colonne droite')
+                            ->visible($visibleFor(['split'])),
                         RichEditor::make('rich_text')
                             ->label('Contenu riche')
                             ->toolbarButtons([
@@ -146,6 +158,22 @@ class PageForm
                             ->numeric()
                             ->default(3)
                             ->visible($visibleFor(['news_grid', 'events_grid', 'members_strip'])),
+                        Select::make('variant')
+                            ->label('Style des cartes')
+                            ->options([
+                                'default' => 'Fond blanc, icônes bleues',
+                                'solid' => 'Fond bleu, texte et icônes blancs',
+                            ])
+                            ->default('default')
+                            ->visible($visibleFor(['features'])),
+                        Toggle::make('avatar')
+                            ->label('Afficher les éléments comme des personnes')
+                            ->helperText('Ajoute un avatar circulaire par défaut si aucune photo n’est renseignée.')
+                            ->visible($visibleFor(['cards'])),
+                        Toggle::make('members_only')
+                            ->label('Réserver aux membres connectés')
+                            ->helperText('Le bloc reste visible uniquement après connexion à l’espace membres.')
+                            ->visible($visibleFor($allTypes)),
 
                         Repeater::make('items')
                             ->label('Éléments du bloc')
@@ -154,11 +182,12 @@ class PageForm
                             ->reorderableWithButtons()
                             ->addActionLabel('Ajouter un élément')
                             ->itemLabel(fn (?array $state): ?string => $state['title'] ?? $state['label'] ?? $state['value'] ?? $state['year'] ?? 'Élément')
-                            ->visible($visibleFor(['hero', 'features', 'stats', 'timeline', 'cards', 'list', 'contact']))
+                            ->visible($visibleFor(['hero', 'features', 'stats', 'timeline', 'cards', 'list', 'contact', 'split']))
                             ->schema([
                                 TextInput::make('icon')
-                                    ->label('Icône (emoji ou texte)')
-                                    ->visible($visibleInItems(['features'])),
+                                    ->label('Icône (nom léger)')
+                                    ->helperText('Ex. dialogue, regulation, representation, training, calendar.')
+                                    ->visible($visibleInItems(['features', 'stats'])),
                                 TextInput::make('value')
                                     ->label('Valeur')
                                     ->visible($visibleInItems(['stats'])),
@@ -170,7 +199,7 @@ class PageForm
                                     ->visible($visibleInItems(['timeline'])),
                                 TextInput::make('title')
                                     ->label('Titre')
-                                    ->visible($visibleInItems(['hero', 'features', 'timeline', 'cards', 'list', 'contact'])),
+                                    ->visible($visibleInItems(['hero', 'features', 'timeline', 'cards', 'list', 'contact', 'split'])),
                                 TextInput::make('subtitle')
                                     ->label('Fonction / société')
                                     ->visible($visibleInItems(['cards', 'contact'])),
@@ -186,6 +215,13 @@ class PageForm
                                     ->image()
                                     ->disk('public')
                                     ->directory('pages/items')
+                                    ->visibility('public')
+                                    ->visible($visibleInItems(['cards'])),
+                                FileUpload::make('download_url')
+                                    ->label('Fichier PDF à télécharger')
+                                    ->acceptedFileTypes(['application/pdf'])
+                                    ->disk('public')
+                                    ->directory('pages/documents')
                                     ->visibility('public')
                                     ->visible($visibleInItems(['cards'])),
                             ]),

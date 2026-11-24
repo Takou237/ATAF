@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Members\Schemas;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -42,6 +42,16 @@ class MemberForm
                 TextInput::make('email')
                     ->label('Adresse e-mail')
                     ->email(),
+                TextInput::make('account_email')
+                    ->label('Email du compte membre')
+                    ->helperText('Laisser vide pour générer un identifiant par défaut. Les accès sont affichés après création.')
+                    ->email()
+                    ->dehydrated(false),
+                TextInput::make('account_password')
+                    ->label('Mot de passe initial')
+                    ->password()
+                    ->revealable()
+                    ->dehydrated(false),
                 TextInput::make('website')
                     ->label('Site web')
                     ->url(),

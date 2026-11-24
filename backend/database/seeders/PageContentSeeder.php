@@ -27,9 +27,11 @@ class PageContentSeeder extends Seeder
     {
         $this->seedSettings();
         $this->seedHome();
+        $this->reorderHomeSections();
         $this->seedInstitutionalPages();
         $this->seedSectionPages();
         $this->seedContact();
+        $this->seedAirlineContacts();
         $this->seedMedia();
     }
 
@@ -37,7 +39,7 @@ class PageContentSeeder extends Seeder
     {
         $settings = [
             'contact_phone' => '',
-            'footer_about' => "Association des Transporteurs Aériens Francophones, au service du transport aérien francophone depuis 1950.",
+            'footer_about' => 'Association des Transporteurs Aériens Francophones, au service du transport aérien francophone depuis 1950.',
             'hero_image' => 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&h=900&fit=crop&auto=format',
         ];
 
@@ -48,6 +50,7 @@ class PageContentSeeder extends Seeder
         }
 
         $navigation = [
+            ['label' => 'Accueil', 'path' => '/'],
             ['label' => "L'ATAF", 'path' => '/ataf', 'children' => [
                 ['label' => 'Présentation', 'path' => '/ataf/presentation'],
                 ['label' => 'Missions', 'path' => '/ataf/missions'],
@@ -91,7 +94,10 @@ class PageContentSeeder extends Seeder
                 ['label' => 'Publications', 'path' => '/ressources/publications'],
                 ['label' => 'Médiathèque', 'path' => '/ressources/mediatheque'],
             ]],
-            ['label' => 'Contact', 'path' => '/contact', 'children' => []],
+            ['label' => 'Contact', 'path' => '/contact', 'children' => [
+                ['label' => 'Secrétariat Général', 'path' => '/contact'],
+                ['label' => 'Compagnies aériennes', 'path' => '/contact/compagnies-aeriennes'],
+            ]],
         ];
 
         Setting::set('nav_items', json_encode($navigation, JSON_UNESCAPED_UNICODE), 'navigation');
@@ -128,7 +134,7 @@ class PageContentSeeder extends Seeder
                     ]),
                     $this->block('features', [
                         'title' => 'Nos services',
-                        'subtitle' => "L'ATAF offre à ses membres un cadre structuré d'échanges, de formation, de représentation et de rencontres au sein de la Francophonie aéronautique.",
+                        'variant' => 'solid',
                         'items' => [
                             ['icon' => '🎓', 'title' => 'Séminaire & Formation', 'text' => 'Des séminaires techniques réguliers sur la sécurité aérienne, la sûreté, le fret et la gestion des risques — ouverts aux experts des compagnies membres.'],
                             ['icon' => '📄', 'title' => 'Réglementation', 'text' => "Diffusion de l'information aéropolitique pour tenir les membres informés des évolutions techniques, réglementaires et politiques du transport aérien."],
@@ -168,7 +174,7 @@ class PageContentSeeder extends Seeder
                     $this->block('members_strip', [
                         'title' => 'Nos membres',
                         'subtitle' => 'Notre réseau',
-                        'limit' => 10,
+                        'limit' => 100,
                         'button_label' => "Voir l'annuaire complet",
                         'button_url' => '/membres/annuaire',
                     ]),
@@ -185,6 +191,71 @@ class PageContentSeeder extends Seeder
                 ],
             ],
         );
+    }
+
+    private function reorderHomeSections(): void
+    {
+        $page = Page::query()->where('slug', 'home')->first();
+
+        if (! $page) {
+            return;
+        }
+
+        $sections = $page->sections ?? [];
+        $presentationIndex = null;
+        $objectivesIndex = null;
+        $servicesIndex = null;
+
+        foreach ($sections as $index => $section) {
+            $title = mb_strtolower((string) ($section['title'] ?? ''));
+
+            if (($section['type'] ?? null) === 'rich_text' && str_contains($title, 'présentation')) {
+                $presentationIndex = $index;
+            }
+
+            if (($section['type'] ?? null) === 'list' && str_contains($title, 'objectifs')) {
+                $objectivesIndex = $index;
+            }
+
+            if (($section['type'] ?? null) === 'features' && str_contains($title, 'service')) {
+                $servicesIndex = $index;
+            }
+        }
+
+        if ($presentationIndex === null || $objectivesIndex === null || $servicesIndex === null) {
+            return;
+        }
+
+        $presentation = $sections[$presentationIndex];
+        $objectives = $sections[$objectivesIndex];
+        $services = $sections[$servicesIndex];
+        $services['subtitle'] = null;
+
+        $remaining = array_values(array_filter(
+            $sections,
+            fn (array $section, int $index): bool => ! in_array($index, [$presentationIndex, $objectivesIndex, $servicesIndex], true),
+            ARRAY_FILTER_USE_BOTH,
+        ));
+
+        $statsIndex = null;
+
+        foreach ($remaining as $index => $section) {
+            if (($section['type'] ?? null) === 'stats') {
+                $statsIndex = $index;
+                break;
+            }
+        }
+        $insertAt = $statsIndex === null ? 1 : $statsIndex + 1;
+
+        array_splice($remaining, $insertAt, 0, [[
+            'type' => 'split',
+            'left_title' => $presentation['title'] ?? "Présentation de l'ATAF",
+            'left_text' => $presentation['rich_text'] ?? '',
+            'right_title' => $objectives['title'] ?? "Objectifs de l'ATAF",
+            'items' => $objectives['items'] ?? [],
+        ], $services]);
+
+        $page->update(['sections' => $remaining]);
     }
 
     private function seedInstitutionalPages(): void
@@ -289,7 +360,7 @@ class PageContentSeeder extends Seeder
                     $this->block('cards', [
                         'title' => 'Les instances',
                         'items' => [
-                            ['title' => 'Assemblée Générale', 'text' => "Instance souveraine réunissant tous les membres, tenue annuellement. Définit les orientations stratégiques et élit les instances dirigeantes."],
+                            ['title' => 'Assemblée Générale', 'text' => 'Instance souveraine réunissant tous les membres, tenue annuellement. Définit les orientations stratégiques et élit les instances dirigeantes.'],
                             ['title' => 'Comité Exécutif', 'text' => "Composé du Président, des Vice-Présidents et du Trésorier. Gère les affaires courantes et met en oeuvre les décisions de l'AG."],
                             ['title' => 'Secrétariat Général', 'text' => 'Structure permanente basée à Montreuil, France. Assure le fonctionnement quotidien, la communication et la coordination avec les membres.'],
                         ],
@@ -360,12 +431,13 @@ class PageContentSeeder extends Seeder
                         'rich_text' => "<p>Le Bureau de l'ATAF est composé du Président, des Vice-Présidents et du Trésorier. Il se réunit régulièrement pour assurer la gestion de l'association entre les Assemblées Générales.</p>",
                     ]),
                     $this->block('cards', [
+                        'avatar' => true,
                         'items' => [
                             ['title' => 'Gnl Abdoulaye COULIBALY', 'subtitle' => 'Président', 'text' => "Air Côte d'Ivoire — Général Abdoulaye Coulibaly est à la tête de l'ATAF en tant que Président. Il dirige également Air Côte d'Ivoire, compagnie nationale de Côte d'Ivoire."],
                             ['title' => 'Mme Anne RIGAIL', 'subtitle' => '1ère Vice-Présidente', 'text' => "Air France — Anne Rigail est Directrice Générale d'Air France et Vice-Présidente de l'ATAF, représentant la principale compagnie aérienne française."],
                             ['title' => 'M. Pierre MURACCIOLE', 'subtitle' => 'Vice-Président', 'text' => 'Air Corsica — Pierre Muracciole dirige Air Corsica et représente les compagnies régionales françaises au sein du bureau.'],
                             ['title' => 'M. Pascal de IZAGUIRRE', 'subtitle' => 'Vice-Président', 'text' => 'Corsair — Pascal de Izaguirre est à la tête de Corsair, compagnie française spécialisée dans les liaisons vers les DOM-TOM et l’Afrique.'],
-                            ['title' => 'M. Mohamad EL-HOUT', 'subtitle' => 'Vice-Président', 'text' => "Middle East Airlines — Mohamad El-Hout représente le Liban et les compagnies arabophones francophones au sein du bureau."],
+                            ['title' => 'M. Mohamad EL-HOUT', 'subtitle' => 'Vice-Président', 'text' => 'Middle East Airlines — Mohamad El-Hout représente le Liban et les compagnies arabophones francophones au sein du bureau.'],
                             ['title' => 'M. Claude THENEVIN', 'subtitle' => 'Trésorier', 'text' => "ATAF — Claude Thenevin assure la gestion financière de l'ATAF en sa qualité de Trésorier."],
                         ],
                     ]),
@@ -615,6 +687,86 @@ class PageContentSeeder extends Seeder
                             ['title' => 'Sonia VALLON', 'subtitle' => 'Administration et Finances', 'url' => 'mailto:svallon@ataf.fr', 'text' => 'svallon@ataf.fr'],
                             ['title' => 'Raphaël CROS', 'subtitle' => 'Communication', 'url' => 'mailto:rcros@ataf.fr', 'text' => 'rcros@ataf.fr'],
                         ],
+                    ]),
+                ],
+            ],
+        );
+    }
+
+    private function seedAirlineContacts(): void
+    {
+        $airlines = [
+            ['name' => 'Air Algérie', 'country' => 'Algérie', 'url' => 'https://airalgerie.dz'],
+            ['name' => 'Air Austral', 'country' => 'La Réunion', 'url' => 'https://www.air-austral.com'],
+            ['name' => 'Air Burkina', 'country' => 'Burkina Faso', 'url' => 'https://www.airburkina.com'],
+            ['name' => 'Air Caraïbes', 'country' => 'France / Caraïbes', 'url' => 'https://www.aircaraibes.com'],
+            ['name' => 'Air Corsica', 'country' => 'France / Corse', 'url' => 'https://www.aircorsica.com'],
+            ['name' => "Air Côte d'Ivoire", 'country' => "Côte d'Ivoire", 'url' => 'https://www.aircotedivoire.com'],
+            ['name' => 'Air France', 'country' => 'France', 'url' => 'https://www.airfrance.com'],
+            ['name' => 'Air Madagascar', 'country' => 'Madagascar', 'url' => 'https://www.airmadagascar.com'],
+            ['name' => 'Air Mauritius', 'country' => 'Maurice', 'url' => 'https://www.airmauritius.com'],
+            ['name' => 'Air Sénégal', 'country' => 'Sénégal', 'url' => 'https://www.flyairsenegal.com'],
+            ['name' => 'Fly Gabon', 'country' => 'Gabon', 'url' => 'https://flygabon.com'],
+            ['name' => 'APG Airlines', 'country' => 'France', 'url' => 'https://www.apg-airlines.com'],
+            ['name' => 'Brussels Airlines', 'country' => 'Belgique', 'url' => 'https://www.brusselsairlines.com'],
+            ['name' => 'Corsair', 'country' => 'France', 'url' => 'https://www.flycorsair.com'],
+            ['name' => 'Congo Airways', 'country' => 'République démocratique du Congo', 'url' => 'https://www.congoairways.com'],
+            ['name' => 'Mauritania Airlines', 'country' => 'Mauritanie', 'url' => 'https://www.mauritaniaairlines.com'],
+            ['name' => 'Middle East Airlines', 'country' => 'Liban', 'url' => 'https://www.mea.com.lb'],
+            ['name' => 'Regourd Aviation', 'country' => 'France', 'url' => 'https://www.regourd-aviation.com'],
+            ['name' => 'ER Aviation', 'country' => 'France', 'url' => 'https://www.er-aviation.com'],
+            ['name' => 'Royal Air Maroc', 'country' => 'Maroc', 'url' => 'https://www.royalairmaroc.com'],
+            ['name' => 'Tunisair', 'country' => 'Tunisie', 'url' => 'https://www.tunisair.com'],
+        ];
+
+        $details = [
+            'Air Algérie' => 'M. Hamza Behamouda — Alger · +213 21 74 24 28',
+            'Air Austral' => 'M. Hugues Marchessaux — Sainte-Marie · +33 (0)2 62 93 10 10',
+            'Air Burkina' => 'M. Wendkuni Serge Frédéric Zombré — Ouagadougou · +226 50 30 76 76',
+            'Air Caraïbes' => 'M. Géry Mortreux — Les Abymes · +33 (0)5 90 82 47 73',
+            'Air Corsica' => 'M. Pierre Muracciole — Ajaccio · +33 (0)4 95 29 05 00',
+            "Air Côte d'Ivoire" => 'Général Abdoulaye Coulibaly / M. Laurent Loukou — Abidjan · +225 21 75 00 55/56',
+            'Air France' => 'Mme Anne Rigail — Roissy CDG · +33 (0)1 41 56 78 00',
+            'Air Madagascar' => 'M. Rado Mamimosa Rabarilala — Antananarivo · +261 20 22 222 22',
+            'Air Mauritius' => 'M. André Viljoen — Port-Louis · +230 207 70 70',
+            'Air Sénégal' => 'M. Tidiane Ndiaye — Dakar · +221 33 868 35 95',
+            'Fly Gabon' => 'M. Marc Gaffajoli / M. Nyl Moret-Mba — Libreville · +241 01 44 28 85',
+            'APG Airlines' => 'Mme Sandrine de Saint-Sauveur — Paris · +33 (0)1 53 77 13 02',
+            'Brussels Airlines' => 'Mme Lorenza Maggio — Bruxelles · +32 2 754 19 07',
+            'Corsair' => 'M. Pascal de Izaguirre — Rungis · +33 (0)1 81 94 10 66',
+            'Congo Airways' => 'M. Alexandre Mukendi Tshikala — Kinshasa · +243 81 55 55 869',
+            'Mauritania Airlines' => 'M. Ahmed Salem Mohamed Vall Ammi — Nouakchott · +222 45 24 12 53',
+            'Middle East Airlines' => 'M. Mohamad El-Hout — Beyrouth · +961 1 62 88 88',
+            'Regourd Aviation' => 'M. Alain Regourd — Paris · +33 1 53 67 71 00',
+            'ER Aviation' => 'M. Alexandre Fayd’Herbe de Maudave — Moka · +230 202 66 30',
+            'Royal Air Maroc' => 'M. Abdelhamid Addou — Casablanca · +212 5 22 91 20 00',
+            'Tunisair' => 'Mme Halima Ibrahim Khouaja — Tunis-Carthage · +216 70 837 000',
+        ];
+
+        Page::query()->updateOrCreate(
+            ['slug' => 'contact-compagnies-aeriennes'],
+            [
+                'title' => 'Compagnies aériennes',
+                'subtitle' => 'Contacts des compagnies membres de l’ATAF',
+                'status' => 'published',
+                'position' => 11,
+                'sections' => [
+                    $this->block('hero', [
+                        'title' => 'Compagnies aériennes',
+                        'subtitle' => 'Les coordonnées publiques de nos compagnies membres',
+                    ]),
+                    $this->block('cards', [
+                        'title' => 'Annuaire des compagnies',
+                        'subtitle' => 'Cliquez sur une fiche pour accéder au site officiel',
+                        'items' => array_map(
+                            fn (array $airline): array => [
+                                'title' => $airline['name'],
+                                'subtitle' => $airline['country'],
+                                'text' => $details[$airline['name']] ?? 'Informations de contact disponibles auprès de la compagnie.',
+                                'url' => $airline['url'],
+                            ],
+                            $airlines,
+                        ),
                     ]),
                 ],
             ],
