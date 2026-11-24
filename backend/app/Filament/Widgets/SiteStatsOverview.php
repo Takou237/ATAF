@@ -25,6 +25,12 @@ class SiteStatsOverview extends StatsOverviewWidget
 
     protected ?string $description = 'Activité du site et de l’association sur les 30 derniers jours.';
 
+    /** Les chiffres ne s'affichent que pour les rôles autorisés à les consulter. */
+    public static function canView(): bool
+    {
+        return auth()->user()?->can('view statistics') ?? false;
+    }
+
     protected function getStats(): array
     {
         $since = Carbon::now()->subDays(30);
@@ -50,22 +56,22 @@ class SiteStatsOverview extends StatsOverviewWidget
                 ->description('Fiches membres publiées')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('success')
-                ->url(MemberResource::getUrl('index')),
+                ->url(MemberResource::canViewAny() ? MemberResource::getUrl('index') : null),
             Stat::make('Demandes d’adhésion', number_format($pending, 0, ',', ' '))
                 ->description($pending > 0 ? 'À traiter par le secrétariat' : 'Aucune demande en attente')
                 ->descriptionIcon('heroicon-m-inbox-arrow-down')
                 ->color($pending > 0 ? 'warning' : 'success')
-                ->url(MembershipApplicationResource::getUrl('index')),
+                ->url(MembershipApplicationResource::canViewAny() ? MembershipApplicationResource::getUrl('index') : null),
             Stat::make('Actualités publiées', number_format($news, 0, ',', ' '))
                 ->description('Articles en ligne')
                 ->descriptionIcon('heroicon-m-newspaper')
                 ->color('primary')
-                ->url(NewsResource::getUrl('index')),
+                ->url(NewsResource::canViewAny() ? NewsResource::getUrl('index') : null),
             Stat::make('Documents publics', number_format($documents, 0, ',', ' '))
                 ->description('Téléchargeables par les visiteurs')
                 ->descriptionIcon('heroicon-m-folder-open')
                 ->color('gray')
-                ->url(DocumentResource::getUrl('index')),
+                ->url(DocumentResource::canViewAny() ? DocumentResource::getUrl('index') : null),
         ];
     }
 }

@@ -17,6 +17,11 @@ class MostViewedPages extends ChartWidget
 
     protected int|string|array $columnSpan = ['lg' => 1];
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->can('view statistics') ?? false;
+    }
+
     protected function getData(): array
     {
         $pages = PageView::query()

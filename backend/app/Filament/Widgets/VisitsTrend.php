@@ -16,6 +16,11 @@ class VisitsTrend extends ChartWidget
 
     protected int|string|array $columnSpan = ['lg' => 2];
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->can('view statistics') ?? false;
+    }
+
     protected function getData(): array
     {
         $start = Carbon::today()->subDays(13);
