@@ -1,0 +1,130 @@
+[
+    {
+        "id": 1,
+        "key": "site_name",
+        "value": "ATAF",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:54.000000Z",
+        "updated_at": "2026-11-18T11:55:54.000000Z"
+    },
+    {
+        "id": 2,
+        "key": "site_baseline",
+        "value": "Au service du transport aérien francophone",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:54.000000Z",
+        "updated_at": "2026-11-18T11:55:54.000000Z"
+    },
+    {
+        "id": 3,
+        "key": "founded_year",
+        "value": "1950",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:54.000000Z",
+        "updated_at": "2026-11-18T11:55:54.000000Z"
+    },
+    {
+        "id": 4,
+        "key": "contact_email",
+        "value": "sg@ataf.fr",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:54.000000Z",
+        "updated_at": "2026-11-18T11:55:54.000000Z"
+    },
+    {
+        "id": 5,
+        "key": "contact_address",
+        "value": "Secrétariat Général ATAF, Montreuil, France",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:54.000000Z",
+        "updated_at": "2026-11-18T11:55:54.000000Z"
+    },
+    {
+        "id": 6,
+        "key": "contact_website",
+        "value": "https:\/\/www.ataf.fr",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:55.000000Z",
+        "updated_at": "2026-11-18T11:55:55.000000Z"
+    },
+    {
+        "id": 7,
+        "key": "stats_years",
+        "value": "75+",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:55.000000Z",
+        "updated_at": "2026-11-18T11:55:55.000000Z"
+    },
+    {
+        "id": 8,
+        "key": "stats_members",
+        "value": "40+",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:55.000000Z",
+        "updated_at": "2026-11-18T11:55:55.000000Z"
+    },
+    {
+        "id": 9,
+        "key": "stats_countries",
+        "value": "25",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:55.000000Z",
+        "updated_at": "2026-11-18T11:55:55.000000Z"
+    },
+    {
+        "id": 10,
+        "key": "stats_assemblies",
+        "value": "130+",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:55.000000Z",
+        "updated_at": "2026-11-18T11:55:55.000000Z"
+    },
+    {
+        "id": 11,
+        "key": "social_twitter",
+        "value": "#",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:55.000000Z",
+        "updated_at": "2026-11-18T11:55:55.000000Z"
+    },
+    {
+        "id": 12,
+        "key": "social_linkedin",
+        "value": "#",
+        "group": "general",
+        "created_at": "2026-11-18T11:55:55.000000Z",
+        "updated_at": "2026-11-18T11:55:55.000000Z"
+    },
+    {
+        "id": 13,
+        "key": "contact_phone",
+        "value": "",
+        "group": "general",
+        "created_at": "2026-11-23T09:12:51.000000Z",
+        "updated_at": "2026-11-23T09:12:51.000000Z"
+    },
+    {
+        "id": 14,
+        "key": "footer_about",
+        "value": "Association des Transporteurs Aériens Francophones, au service du transport aérien francophone depuis 1950.",
+        "group": "general",
+        "created_at": "2026-11-23T09:12:51.000000Z",
+        "updated_at": "2026-11-23T09:12:51.000000Z"
+    },
+    {
+        "id": 15,
+        "key": "hero_image",
+        "value": "https:\/\/images.unsplash.com\/photo-1436491865332-7a61a109cc05?w=1600&h=900&fit=crop&auto=format",
+        "group": "general",
+        "created_at": "2026-11-23T09:12:51.000000Z",
+        "updated_at": "2026-11-23T09:12:51.000000Z"
+    },
+    {
+        "id": 16,
+        "key": "nav_items",
+        "value": "[{\"label\":\"Accueil\",\"path\":\"\\\/\"},{\"label\":\"L'ATAF\",\"path\":\"\\\/ataf\",\"children\":[{\"label\":\"Présentation\",\"path\":\"\\\/ataf\\\/presentation\"},{\"label\":\"Missions\",\"path\":\"\\\/ataf\\\/missions\"},{\"label\":\"Histoire\",\"path\":\"\\\/ataf\\\/histoire\"},{\"label\":\"Gouvernance\",\"path\":\"\\\/ataf\\\/gouvernance\"},{\"label\":\"Organigramme\",\"path\":\"\\\/ataf\\\/organigramme\"},{\"label\":\"Bureau \\\/ CA\",\"path\":\"\\\/ataf\\\/bureau\"}]},{\"label\":\"Membres\",\"path\":\"\\\/membres\",\"children\":[{\"label\":\"Annuaire des membres\",\"path\":\"\\\/membres\\\/annuaire\"},{\"label\":\"Compagnies membres\",\"path\":\"\\\/membres\\\/compagnies\"},{\"label\":\"Partenaires\",\"path\":\"\\\/membres\\\/partenaires\"},{\"label\":\"Devenir membre\",\"path\":\"\\\/membres\\\/adhesion\"}]},{\"label\":\"Actualités\",\"path\":\"\\\/actualites\",\"children\":[{\"label\":\"Actualités ATAF\",\"path\":\"\\\/actualites\\\/ataf\"},{\"label\":\"Actualités membres\",\"path\":\"\\\/actualites\\\/membres\"},{\"label\":\"Communiqués\",\"path\":\"\\\/actualites\\\/communiques\"},{\"label\":\"Veille aéronautique\",\"path\":\"\\\/actualites\\\/veille\"}]},{\"label\":\"Événements\",\"path\":\"\\\/evenements\",\"children\":[{\"label\":\"Agenda\",\"path\":\"\\\/evenements\\\/agenda\"},{\"label\":\"Séminaires\",\"path\":\"\\\/evenements\\\/seminaires\"},{\"label\":\"Formations\",\"path\":\"\\\/evenements\\\/formations\"},{\"label\":\"Assemblées générales\",\"path\":\"\\\/evenements\\\/assemblees\"},{\"label\":\"Conférences\",\"path\":\"\\\/evenements\\\/conferences\"}]},{\"label\":\"Réglementation\",\"path\":\"\\\/reglementation\",\"children\":[{\"label\":\"Veille réglementaire\",\"path\":\"\\\/reglementation\\\/veille\"},{\"label\":\"Textes réglementaires\",\"path\":\"\\\/reglementation\\\/textes\"},{\"label\":\"Publications\",\"path\":\"\\\/reglementation\\\/publications\"},{\"label\":\"Notes et analyses\",\"path\":\"\\\/reglementation\\\/notes\"}]},{\"label\":\"Nos agences\",\"path\":\"\\\/agences\",\"children\":[{\"label\":\"Annuaire\",\"path\":\"\\\/agences\\\/annuaire\"},{\"label\":\"Vérifier un agrément\",\"path\":\"\\\/agences\\\/verification\"},{\"label\":\"Informations\",\"path\":\"\\\/agences\\\/informations\"}]},{\"label\":\"Ressources\",\"path\":\"\\\/ressources\",\"children\":[{\"label\":\"Centre documentaire\",\"path\":\"\\\/ressources\\\/documents\"},{\"label\":\"Publications\",\"path\":\"\\\/ressources\\\/publications\"},{\"label\":\"Médiathèque\",\"path\":\"\\\/ressources\\\/mediatheque\"}]},{\"label\":\"Contact\",\"path\":\"\\\/contact\",\"children\":[{\"label\":\"Secrétariat Général\",\"path\":\"\\\/contact\"},{\"label\":\"Compagnies aériennes\",\"path\":\"\\\/contact\\\/compagnies-aeriennes\"}]}]",
+        "group": "navigation",
+        "created_at": "2026-11-23T09:12:51.000000Z",
+        "updated_at": "2026-11-24T09:05:46.000000Z"
+    }
+]

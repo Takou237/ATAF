@@ -1,0 +1,1456 @@
+[
+    {
+        "id": 1,
+        "slug": "presentation",
+        "title": "L'ATAF",
+        "subtitle": "Association des Transporteurs Aériens Francophones",
+        "body": "<p>L'ATAF — Association des Transporteurs Aériens Francophones — est une organisation internationale fondée en 1950, rassemblant les principales compagnies aériennes du monde francophone ainsi que leurs partenaires industriels, institutionnels et commerciaux.<\/p><p>Elle constitue un cadre privilégié de dialogue, d'échange d'expériences et de représentation collective auprès des grandes instances internationales de l'aviation civile : ICAO, IATA, AFRAA, ASECNA.<\/p>",
+        "sections": [
+            {
+                "type": "hero",
+                "title": "L'ATAF",
+                "subtitle": "Association des Transporteurs Aériens Francophones"
+            },
+            {
+                "type": "rich_text",
+                "title": "Qui sommes-nous ?",
+                "rich_text": "<p>L'ATAF — <strong>Association Internationale des Transporteurs Aériens Francophones<\/strong> — est une organisation internationale fondée en <strong>1950<\/strong>, rassemblant les principales compagnies aériennes du monde francophone ainsi que leurs partenaires industriels, institutionnels et commerciaux.<\/p><p>L'ATAF regroupe aujourd'hui plus de 40 membres actifs — compagnies aériennes, organismes de navigation aérienne, industriels et partenaires — dans plus de 25 pays représentant l'ensemble de la Francophonie aéronautique.<\/p><blockquote>« L'ATAF est un espace de confiance où les dirigeants de l'aviation francophone construisent ensemble un secteur plus sûr, plus efficace et plus durable. »<br>— Gnl Abdoulaye COULIBALY, Président de l'ATAF<\/blockquote>"
+            },
+            {
+                "type": "stats",
+                "items": [
+                    {
+                        "value": "1950",
+                        "label": "Année de création"
+                    },
+                    {
+                        "value": "40+",
+                        "label": "Membres actifs"
+                    },
+                    {
+                        "value": "25",
+                        "label": "Pays représentés"
+                    },
+                    {
+                        "value": "130+",
+                        "label": "Assemblées générales"
+                    }
+                ]
+            },
+            {
+                "type": "list",
+                "title": "Objectifs de l'ATAF",
+                "items": [
+                    {
+                        "title": "Renforcer les avantages des compagnies membres dans l'espace francophone"
+                    },
+                    {
+                        "title": "Favoriser le partage d'expériences et les transferts de technologie"
+                    },
+                    {
+                        "title": "Encourager le dialogue entre les compagnies membres et leurs autorités de tutelle"
+                    },
+                    {
+                        "title": "Faciliter les échanges entre présidents et dirigeants lors des Assemblées Générales"
+                    },
+                    {
+                        "title": "Assurer la représentation collective auprès des instances internationales (ICAO, IATA, AFRAA, ASECNA)"
+                    },
+                    {
+                        "title": "Contribuer au développement durable et responsable du transport aérien francophone"
+                    }
+                ]
+            }
+        ],
+        "status": "published",
+        "position": 1,
+        "created_at": "2026-11-18T11:55:55.000000Z",
+        "updated_at": "2026-11-23T11:54:29.000000Z"
+    },
+    {
+        "id": 2,
+        "slug": "missions",
+        "title": "Missions",
+        "subtitle": "Les engagements de l'ATAF",
+        "body": "<p>Dialogue et concertation, partage d'expériences, veille réglementaire, formation, représentation collective et développement de l'aviation dans l'espace francophone.<\/p>",
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Missions",
+                "subtitle": "Les engagements de l'ATAF"
+            },
+            {
+                "type": "features",
+                "title": "Nos missions",
+                "items": [
+                    {
+                        "icon": "✈️",
+                        "title": "Dialogue et concertation",
+                        "text": "Favoriser le dialogue entre compagnies membres, autorités et instances internationales."
+                    },
+                    {
+                        "icon": "🔗",
+                        "title": "Partage d'expériences",
+                        "text": "Promouvoir l'échange d'expériences et le transfert de technologies entre membres."
+                    },
+                    {
+                        "icon": "📋",
+                        "title": "Veille réglementaire",
+                        "text": "Assurer la diffusion des évolutions réglementaires aéronautiques internationales."
+                    },
+                    {
+                        "icon": "🎓",
+                        "title": "Formation",
+                        "text": "Organiser des séminaires et formations techniques pour les professionnels membres."
+                    },
+                    {
+                        "icon": "🤝",
+                        "title": "Représentation collective",
+                        "text": "Représenter les intérêts des membres auprès d'ASECNA, ICAO, IATA, AFRAA."
+                    },
+                    {
+                        "icon": "🌍",
+                        "title": "Développement francophone",
+                        "text": "Contribuer au développement de l'aviation civile dans l'espace francophone."
+                    }
+                ]
+            }
+        ],
+        "status": "published",
+        "position": 2,
+        "created_at": "2026-11-18T11:55:55.000000Z",
+        "updated_at": "2026-11-23T09:12:52.000000Z"
+    },
+    {
+        "id": 3,
+        "slug": "histoire",
+        "title": "Histoire",
+        "subtitle": "75 ans au service du transport aérien francophone",
+        "body": "<p>Fondée en 1950, l'ATAF a accompagné les grandes étapes de l'aviation civile francophone, de l'internationalisation du réseau aux enjeux actuels de durabilité.<\/p>",
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Histoire",
+                "subtitle": "75 ans au service du transport aérien francophone"
+            },
+            {
+                "type": "timeline",
+                "title": "Les grandes étapes",
+                "items": [
+                    {
+                        "year": "1950",
+                        "title": "Création de l'ATAF",
+                        "text": "Fondation au sein de l'Union française, regroupant les premières compagnies aériennes francophones."
+                    },
+                    {
+                        "year": "1960",
+                        "title": "Internationalisation",
+                        "text": "Extension du réseau aux nouvelles nations indépendantes francophones suite aux décolonisations."
+                    },
+                    {
+                        "year": "1975",
+                        "title": "50ème Assemblée Générale",
+                        "text": "Célébration du 50ème anniversaire de l'association à Paris."
+                    },
+                    {
+                        "year": "1990",
+                        "title": "Expansion du réseau",
+                        "text": "Intégration de nouveaux partenaires industriels et institutionnels du secteur aérien."
+                    },
+                    {
+                        "year": "2000",
+                        "title": "Ère numérique",
+                        "text": "Modernisation des outils de communication et d'échange entre membres."
+                    },
+                    {
+                        "year": "2020",
+                        "title": "Nouvelle direction",
+                        "text": "Patrick Alexandre prend les fonctions de Secrétaire Général, anciennement DGA d'Air France."
+                    },
+                    {
+                        "year": "2026",
+                        "title": "132ème Assemblée Générale",
+                        "text": "L'ATAF tient sa 132ème Assemblée Générale à Ajaccio, Corse."
+                    }
+                ]
+            }
+        ],
+        "status": "published",
+        "position": 3,
+        "created_at": "2026-11-18T11:55:55.000000Z",
+        "updated_at": "2026-11-23T09:12:52.000000Z"
+    },
+    {
+        "id": 4,
+        "slug": "gouvernance",
+        "title": "Gouvernance",
+        "subtitle": "Structure et fonctionnement de l'ATAF",
+        "body": "<p>L'Assemblée Générale, le Comité Exécutif et le Secrétariat Général assurent la gouvernance de l'association.<\/p>",
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Gouvernance",
+                "subtitle": "Structure et fonctionnement de l'ATAF"
+            },
+            {
+                "type": "cards",
+                "title": "Les instances",
+                "items": [
+                    {
+                        "title": "Assemblée Générale",
+                        "text": "Instance souveraine réunissant tous les membres, tenue annuellement. Définit les orientations stratégiques et élit les instances dirigeantes."
+                    },
+                    {
+                        "title": "Comité Exécutif",
+                        "text": "Composé du Président, des Vice-Présidents et du Trésorier. Gère les affaires courantes et met en oeuvre les décisions de l'AG."
+                    },
+                    {
+                        "title": "Secrétariat Général",
+                        "text": "Structure permanente basée à Montreuil, France. Assure le fonctionnement quotidien, la communication et la coordination avec les membres."
+                    }
+                ]
+            },
+            {
+                "type": "cards",
+                "title": "Secrétariat Général",
+                "subtitle": "Montreuil, France — 5 collaborateurs permanents",
+                "items": [
+                    {
+                        "title": "Patrick ALEXANDRE",
+                        "subtitle": "Directeur Général",
+                        "url": "mailto:palexandre@ataf.fr",
+                        "text": "palexandre@ataf.fr"
+                    },
+                    {
+                        "title": "Jean-Claude CROS",
+                        "subtitle": "Directeur Général Adjoint",
+                        "url": "mailto:jccros@ataf.fr",
+                        "text": "jccros@ataf.fr"
+                    },
+                    {
+                        "title": "Claude THENEVIN",
+                        "subtitle": "Trésorier",
+                        "url": "mailto:clthenevin@ataf.fr",
+                        "text": "clthenevin@ataf.fr"
+                    },
+                    {
+                        "title": "Sonia VALLON",
+                        "subtitle": "Administration et Finances",
+                        "url": "mailto:svallon@ataf.fr",
+                        "text": "svallon@ataf.fr"
+                    },
+                    {
+                        "title": "Raphaël CROS",
+                        "subtitle": "Communication",
+                        "url": "mailto:rcros@ataf.fr",
+                        "text": "rcros@ataf.fr"
+                    }
+                ]
+            }
+        ],
+        "status": "published",
+        "position": 4,
+        "created_at": "2026-11-18T11:55:56.000000Z",
+        "updated_at": "2026-11-23T09:12:52.000000Z"
+    },
+    {
+        "id": 5,
+        "slug": "organigramme",
+        "title": "Organigramme",
+        "subtitle": "Structure de direction de l'ATAF",
+        "body": "<p>Présidence, vice-présidences et direction générale.<\/p>",
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Organigramme",
+                "subtitle": "Structure de direction de l'ATAF"
+            },
+            {
+                "type": "cards",
+                "title": "Présidence",
+                "items": [
+                    {
+                        "title": "Gnl Abdoulaye COULIBALY",
+                        "subtitle": "Président",
+                        "text": "Air Côte d'Ivoire"
+                    }
+                ]
+            },
+            {
+                "type": "cards",
+                "title": "Vice-présidents",
+                "items": [
+                    {
+                        "title": "Mme Anne RIGAIL",
+                        "subtitle": "1ère Vice-Présidente",
+                        "text": "Air France"
+                    },
+                    {
+                        "title": "M. Pierre MURACCIOLE",
+                        "subtitle": "Vice-Président",
+                        "text": "Air Corsica"
+                    },
+                    {
+                        "title": "M. Pascal de IZAGUIRRE",
+                        "subtitle": "Vice-Président",
+                        "text": "Corsair"
+                    },
+                    {
+                        "title": "M. Mohamad EL-HOUT",
+                        "subtitle": "Vice-Président",
+                        "text": "Middle East Airlines"
+                    },
+                    {
+                        "title": "M. Nyl Charles MORET-MBA",
+                        "subtitle": "Vice-Président",
+                        "text": "FLY GABON"
+                    },
+                    {
+                        "title": "Mme Halima I. KHOUAJA",
+                        "subtitle": "Vice-Présidente",
+                        "text": "TUNISAIR"
+                    }
+                ]
+            },
+            {
+                "type": "cards",
+                "title": "Direction Générale",
+                "items": [
+                    {
+                        "title": "M. Patrick ALEXANDRE",
+                        "subtitle": "Directeur Général"
+                    },
+                    {
+                        "title": "M. Jean-Claude CROS",
+                        "subtitle": "Directeur Général Adjoint"
+                    },
+                    {
+                        "title": "M. Claude THENEVIN",
+                        "subtitle": "Trésorier"
+                    }
+                ]
+            }
+        ],
+        "status": "published",
+        "position": 5,
+        "created_at": "2026-11-18T11:55:56.000000Z",
+        "updated_at": "2026-11-23T09:12:52.000000Z"
+    },
+    {
+        "id": 6,
+        "slug": "bureau",
+        "title": "Bureau \/ Conseil d'administration",
+        "subtitle": "Les membres du bureau de l'ATAF",
+        "body": "<p>Le Bureau est composé du Président, des Vice-Présidents et du Trésorier.<\/p>",
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Bureau \/ Conseil d'administration",
+                "subtitle": "Les membres du bureau de l'ATAF",
+                "image": null,
+                "members_only": false,
+                "items": [],
+                "text": null
+            },
+            {
+                "type": "rich_text",
+                "rich_text": "<p>Le Bureau de l&#039;ATAF est composé du Président, des Vice-Présidents et du Trésorier. Il se réunit régulièrement pour assurer la gestion de l&#039;association entre les Assemblées Générales.<\/p>",
+                "members_only": false,
+                "title": null
+            },
+            {
+                "type": "cards",
+                "avatar": true,
+                "items": [
+                    {
+                        "title": "Gnl Abdoulaye COULIBALY",
+                        "subtitle": "Président",
+                        "text": "Air Côte d'Ivoire — Général Abdoulaye Coulibaly est à la tête de l'ATAF en tant que Président. Il dirige également Air Côte d'Ivoire, compagnie nationale de Côte d'Ivoire.",
+                        "image": "pages\/items\/ECkdM3Tp8qZYxYXbSG6cxRIjYjexPK7B1WOqs3fQ.jpg",
+                        "download_url": null,
+                        "url": null
+                    },
+                    {
+                        "title": "Mme Anne RIGAIL",
+                        "subtitle": "1ère Vice-Présidente",
+                        "text": "Air France — Anne Rigail est Directrice Générale d'Air France et Vice-Présidente de l'ATAF, représentant la principale compagnie aérienne française.",
+                        "image": null,
+                        "download_url": null,
+                        "url": null
+                    },
+                    {
+                        "title": "M. Pierre MURACCIOLE",
+                        "subtitle": "Vice-Président",
+                        "text": "Air Corsica — Pierre Muracciole dirige Air Corsica et représente les compagnies régionales françaises au sein du bureau.",
+                        "image": null,
+                        "download_url": null,
+                        "url": null
+                    },
+                    {
+                        "title": "M. Pascal de IZAGUIRRE",
+                        "subtitle": "Vice-Président",
+                        "text": "Corsair — Pascal de Izaguirre est à la tête de Corsair, compagnie française spécialisée dans les liaisons vers les DOM-TOM et l’Afrique.",
+                        "image": null,
+                        "download_url": null,
+                        "url": null
+                    },
+                    {
+                        "title": "M. Mohamad EL-HOUT",
+                        "subtitle": "Vice-Président",
+                        "text": "Middle East Airlines — Mohamad El-Hout représente le Liban et les compagnies arabophones francophones au sein du bureau.",
+                        "image": null,
+                        "download_url": null,
+                        "url": null
+                    },
+                    {
+                        "title": "M. Claude THENEVIN",
+                        "subtitle": "Trésorier",
+                        "text": "ATAF — Claude Thenevin assure la gestion financière de l'ATAF en sa qualité de Trésorier.",
+                        "image": null,
+                        "download_url": null,
+                        "url": null
+                    }
+                ],
+                "image": null,
+                "members_only": false,
+                "title": null,
+                "subtitle": null
+            }
+        ],
+        "status": "published",
+        "position": 6,
+        "created_at": "2026-11-18T11:55:56.000000Z",
+        "updated_at": "2026-11-24T11:34:44.000000Z"
+    },
+    {
+        "id": 7,
+        "slug": "statuts",
+        "title": "Statuts",
+        "subtitle": "Textes fondateurs de l'ATAF",
+        "body": "<p>Les statuts de l'association sont disponibles auprès du Secrétariat Général.<\/p>",
+        "sections": null,
+        "status": "published",
+        "position": 0,
+        "created_at": "2026-11-18T11:55:56.000000Z",
+        "updated_at": "2026-11-18T11:55:56.000000Z"
+    },
+    {
+        "id": 8,
+        "slug": "home",
+        "title": "Accueil",
+        "subtitle": "Au service du transport aérien francophone",
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "ATAF",
+                "subtitle": "Au service du transport aérien francophone",
+                "text": "L'Association des Transporteurs Aériens Francophones fédère les grandes compagnies aériennes du monde francophone depuis 1950, favorisant le dialogue, le partage d'expériences et la représentation collective.",
+                "image": "https:\/\/images.unsplash.com\/photo-1436491865332-7a61a109cc05?w=1600&h=900&fit=crop&auto=format",
+                "items": [
+                    {
+                        "title": "Découvrir l'ATAF",
+                        "url": "\/ataf\/presentation"
+                    },
+                    {
+                        "title": "Espace membres",
+                        "url": "\/espace-membres"
+                    },
+                    {
+                        "title": "Nos événements",
+                        "url": "\/evenements\/agenda"
+                    }
+                ]
+            },
+            {
+                "type": "stats",
+                "items": [
+                    {
+                        "value": "75+",
+                        "label": "Années d'existence"
+                    },
+                    {
+                        "value": "40+",
+                        "label": "Membres actifs"
+                    },
+                    {
+                        "value": "25",
+                        "label": "Pays représentés"
+                    },
+                    {
+                        "value": "130+",
+                        "label": "Assemblées générales"
+                    }
+                ]
+            },
+            {
+                "type": "split",
+                "left_title": "Présentation de l'ATAF",
+                "left_text": "<p>L'ATAF — <strong>Association Internationale des Transporteurs Aériens Francophones<\/strong> — est une organisation internationale fondée en <strong>1950<\/strong>, rassemblant les principales compagnies aériennes du monde francophone ainsi que leurs partenaires industriels et institutionnels.<\/p><p>Elle constitue un cadre privilégié de dialogue, d'échange d'expériences et de représentation collective auprès des grandes instances internationales de l'aviation civile : ICAO, IATA, AFRAA, ASECNA et autres organisations multilatérales.<\/p>",
+                "right_title": "Objectifs de l'ATAF",
+                "items": [
+                    {
+                        "title": "Renforcer les avantages des compagnies membres dans l'espace francophone"
+                    },
+                    {
+                        "title": "Favoriser le partage d'expériences et les transferts de technologie"
+                    },
+                    {
+                        "title": "Encourager le dialogue entre les compagnies membres et leurs autorités de tutelle"
+                    },
+                    {
+                        "title": "Faciliter les échanges entre présidents et dirigeants lors des Assemblées Générales"
+                    },
+                    {
+                        "title": "Assurer la représentation collective auprès des instances internationales"
+                    },
+                    {
+                        "title": "Contribuer au développement durable du transport aérien francophone"
+                    }
+                ]
+            },
+            {
+                "type": "features",
+                "title": "Nos services",
+                "items": [
+                    {
+                        "icon": "🎓",
+                        "title": "Séminaire & Formation",
+                        "text": "Des séminaires techniques réguliers sur la sécurité aérienne, la sûreté, le fret et la gestion des risques — ouverts aux experts des compagnies membres."
+                    },
+                    {
+                        "icon": "📄",
+                        "title": "Réglementation",
+                        "text": "Diffusion de l'information aéropolitique pour tenir les membres informés des évolutions techniques, réglementaires et politiques du transport aérien."
+                    },
+                    {
+                        "icon": "🤝",
+                        "title": "Représentativité",
+                        "text": "Représentation collective auprès des prestataires de services (ASECNA) et des instances internationales : OACI, IATA, AFRAA, aéroports francophones."
+                    },
+                    {
+                        "icon": "📅",
+                        "title": "Rencontre",
+                        "text": "Une Assemblée Générale annuelle permettant aux PDG et hauts dirigeants d'échanger sur les tendances du secteur et de définir les priorités."
+                    }
+                ],
+                "variant": "solid"
+            },
+            {
+                "type": "news_grid",
+                "title": "Actualités",
+                "subtitle": "Dernières nouvelles",
+                "limit": 6,
+                "button_label": "Voir toutes les actualités",
+                "button_url": "\/actualites"
+            },
+            {
+                "type": "events_grid",
+                "title": "Prochains événements",
+                "subtitle": "À venir",
+                "limit": 3,
+                "button_label": "Voir tout l'agenda",
+                "button_url": "\/evenements\/agenda"
+            },
+            {
+                "type": "members_strip",
+                "title": "Nos membres",
+                "subtitle": "Notre réseau",
+                "limit": 100,
+                "button_label": "Voir l'annuaire complet",
+                "button_url": "\/membres\/annuaire"
+            },
+            {
+                "type": "cta",
+                "title": "Veille réglementaire du transport aérien",
+                "text": "L'ATAF assure une veille permanente sur les évolutions réglementaires internationales affectant le transport aérien francophone. Nos équipes analysent et diffusent les textes de l'ICAO, de l'IATA, de l'AFRAA et des autorités nationales.",
+                "button_label": "Accéder à la veille réglementaire",
+                "button_url": "\/reglementation\/veille"
+            },
+            {
+                "type": "newsletter",
+                "title": "Newsletter ATAF",
+                "text": "Recevez les informations ATAF directement dans votre boîte mail — actualités, événements, veille réglementaire."
+            }
+        ],
+        "status": "published",
+        "position": 0,
+        "created_at": "2026-11-23T09:12:52.000000Z",
+        "updated_at": "2026-11-24T09:34:23.000000Z"
+    },
+    {
+        "id": 9,
+        "slug": "contact",
+        "title": "Contact",
+        "subtitle": "Secrétariat Général de l'ATAF",
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Contact",
+                "subtitle": "Secrétariat Général de l'ATAF"
+            },
+            {
+                "type": "contact",
+                "title": "Nous écrire",
+                "text": "Merci de nous contacter via le formulaire ci-dessous ou directement par e-mail.",
+                "items": [
+                    {
+                        "title": "Patrick ALEXANDRE",
+                        "subtitle": "Directeur Général",
+                        "url": "mailto:palexandre@ataf.fr",
+                        "text": "palexandre@ataf.fr"
+                    },
+                    {
+                        "title": "Jean-Claude CROS",
+                        "subtitle": "Directeur Général Adjoint",
+                        "url": "mailto:jccros@ataf.fr",
+                        "text": "jccros@ataf.fr"
+                    },
+                    {
+                        "title": "Claude THENEVIN",
+                        "subtitle": "Trésorier",
+                        "url": "mailto:clthenevin@ataf.fr",
+                        "text": "clthenevin@ataf.fr"
+                    },
+                    {
+                        "title": "Sonia VALLON",
+                        "subtitle": "Administration et Finances",
+                        "url": "mailto:svallon@ataf.fr",
+                        "text": "svallon@ataf.fr"
+                    },
+                    {
+                        "title": "Raphaël CROS",
+                        "subtitle": "Communication",
+                        "url": "mailto:rcros@ataf.fr",
+                        "text": "rcros@ataf.fr"
+                    }
+                ]
+            }
+        ],
+        "status": "published",
+        "position": 10,
+        "created_at": "2026-11-23T09:12:53.000000Z",
+        "updated_at": "2026-11-23T09:12:53.000000Z"
+    },
+    {
+        "id": 10,
+        "slug": "membres-annuaire",
+        "title": "Annuaire des membres",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Annuaire des membres",
+                "subtitle": "Découvrez le réseau ATAF"
+            },
+            {
+                "type": "widget",
+                "widget": "members_directory"
+            }
+        ],
+        "status": "published",
+        "position": 20,
+        "created_at": "2026-11-23T09:58:36.000000Z",
+        "updated_at": "2026-11-23T09:58:36.000000Z"
+    },
+    {
+        "id": 11,
+        "slug": "membres-compagnies",
+        "title": "Compagnies membres",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Compagnies membres",
+                "subtitle": "Les compagnies aériennes du réseau ATAF"
+            },
+            {
+                "type": "widget",
+                "widget": "members_table"
+            }
+        ],
+        "status": "published",
+        "position": 21,
+        "created_at": "2026-11-23T09:58:36.000000Z",
+        "updated_at": "2026-11-23T09:58:36.000000Z"
+    },
+    {
+        "id": 12,
+        "slug": "membres-partenaires",
+        "title": "Partenaires",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Partenaires",
+                "subtitle": "Nos partenaires institutionnels et industriels"
+            },
+            {
+                "type": "rich_text",
+                "rich_text": "<p>L’ATAF rassemble autour de ses membres compagnies aériennes de nombreux partenaires industriels, institutionnels et de services qui contribuent au développement du transport aérien francophone.<\/p>"
+            },
+            {
+                "type": "widget",
+                "widget": "partners_grid"
+            }
+        ],
+        "status": "published",
+        "position": 22,
+        "created_at": "2026-11-23T09:58:36.000000Z",
+        "updated_at": "2026-11-23T09:58:36.000000Z"
+    },
+    {
+        "id": 13,
+        "slug": "membres-adhesion",
+        "title": "Devenir membre",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Devenir membre",
+                "subtitle": "Rejoignez le réseau ATAF"
+            },
+            {
+                "type": "rich_text",
+                "title": "Rejoindre l’ATAF",
+                "rich_text": "<p>Devenir membre de l’ATAF, c’est intégrer un réseau d’excellence du transport aérien francophone et bénéficier de nombreux avantages.<\/p>"
+            },
+            {
+                "type": "list",
+                "title": "Les avantages de l’adhésion",
+                "items": [
+                    {
+                        "title": "Accès à la veille réglementaire exclusive"
+                    },
+                    {
+                        "title": "Participation aux séminaires et formations"
+                    },
+                    {
+                        "title": "Représentation collective auprès des instances internationales"
+                    },
+                    {
+                        "title": "Networking avec les dirigeants du secteur"
+                    },
+                    {
+                        "title": "Accès à l’espace membres sécurisé"
+                    },
+                    {
+                        "title": "Visibilité dans l’annuaire ATAF"
+                    }
+                ]
+            },
+            {
+                "type": "cards",
+                "title": "Catégories de membres",
+                "items": [
+                    {
+                        "title": "Compagnies aériennes",
+                        "text": "Membres actifs du réseau ATAF."
+                    },
+                    {
+                        "title": "Organismes de navigation aérienne",
+                        "text": "Fournisseurs de services de la navigation aérienne."
+                    },
+                    {
+                        "title": "Partenaires industriels et commerciaux",
+                        "text": "Industriels et sociétés de services du secteur."
+                    },
+                    {
+                        "title": "Membres associés et institutions",
+                        "text": "Organisations et institutions partenaires."
+                    }
+                ]
+            },
+            {
+                "type": "widget",
+                "widget": "membership_form"
+            }
+        ],
+        "status": "published",
+        "position": 23,
+        "created_at": "2026-11-23T09:58:37.000000Z",
+        "updated_at": "2026-11-23T09:58:37.000000Z"
+    },
+    {
+        "id": 14,
+        "slug": "agences-annuaire",
+        "title": "Agences agréées ATAF",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Agences agréées ATAF",
+                "subtitle": "Annuaire dynamique des agences de voyage agréées"
+            },
+            {
+                "type": "widget",
+                "widget": "agencies_directory"
+            }
+        ],
+        "status": "published",
+        "position": 24,
+        "created_at": "2026-11-23T09:58:37.000000Z",
+        "updated_at": "2026-11-23T09:58:37.000000Z"
+    },
+    {
+        "id": 15,
+        "slug": "agences-verification",
+        "title": "Vérifier un agrément ATAF",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Vérifier un agrément ATAF",
+                "subtitle": "Contrôlez la validité d’un agrément d’agence de voyage"
+            },
+            {
+                "type": "widget",
+                "widget": "agency_verify"
+            }
+        ],
+        "status": "published",
+        "position": 25,
+        "created_at": "2026-11-23T09:58:37.000000Z",
+        "updated_at": "2026-11-23T09:58:37.000000Z"
+    },
+    {
+        "id": 16,
+        "slug": "agences-informations",
+        "title": "Informations sur l’agrément",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Informations sur l’agrément",
+                "subtitle": "Obtenir un agrément ATAF pour votre agence"
+            },
+            {
+                "type": "rich_text",
+                "title": "Qu’est-ce que l’agrément ATAF ?",
+                "rich_text": "<p>L’agrément ATAF est une reconnaissance officielle accordée aux agences de voyage qui remplissent les conditions requises pour opérer en tant qu’intermédiaires agréés dans la distribution de billets des compagnies membres de l’ATAF.<\/p><p>L’agrément garantit aux compagnies et aux passagers que l’agence répond aux standards professionnels et financiers de l’ATAF.<\/p>"
+            },
+            {
+                "type": "list",
+                "title": "Conditions d’obtention",
+                "items": [
+                    {
+                        "title": "Être une agence de voyage légalement constituée"
+                    },
+                    {
+                        "title": "Justifier d’une garantie financière suffisante"
+                    },
+                    {
+                        "title": "Disposer d’un personnel qualifié"
+                    },
+                    {
+                        "title": "S’engager à respecter le code déontologique ATAF"
+                    },
+                    {
+                        "title": "Avoir souscrit une assurance professionnelle"
+                    }
+                ]
+            },
+            {
+                "type": "rich_text",
+                "rich_text": "<p>Pour obtenir un dossier de demande d’agrément, contactez le Secrétariat Général via le formulaire ci-dessous.<\/p>"
+            },
+            {
+                "type": "widget",
+                "widget": "agency_form"
+            }
+        ],
+        "status": "published",
+        "position": 26,
+        "created_at": "2026-11-23T09:58:37.000000Z",
+        "updated_at": "2026-11-23T09:58:37.000000Z"
+    },
+    {
+        "id": 17,
+        "slug": "ressources-documents",
+        "title": "Centre documentaire",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Centre documentaire",
+                "subtitle": "Bibliothèque numérique de l’ATAF"
+            },
+            {
+                "type": "widget",
+                "widget": "documents_list"
+            }
+        ],
+        "status": "published",
+        "position": 27,
+        "created_at": "2026-11-23T09:58:37.000000Z",
+        "updated_at": "2026-11-23T09:58:37.000000Z"
+    },
+    {
+        "id": 18,
+        "slug": "ressources-publications",
+        "title": "Publications",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Publications",
+                "subtitle": "Publications et rapports de l’ATAF"
+            },
+            {
+                "type": "widget",
+                "widget": "publications_list"
+            }
+        ],
+        "status": "published",
+        "position": 28,
+        "created_at": "2026-11-23T09:58:37.000000Z",
+        "updated_at": "2026-11-23T09:58:37.000000Z"
+    },
+    {
+        "id": 19,
+        "slug": "ressources-mediatheque",
+        "title": "Médiathèque",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Médiathèque",
+                "subtitle": "Photos et vidéos des événements ATAF"
+            },
+            {
+                "type": "widget",
+                "widget": "media_gallery"
+            }
+        ],
+        "status": "published",
+        "position": 29,
+        "created_at": "2026-11-23T09:58:37.000000Z",
+        "updated_at": "2026-11-23T09:58:37.000000Z"
+    },
+    {
+        "id": 20,
+        "slug": "actualites-ataf",
+        "title": "Actualités ATAF",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Actualités ATAF",
+                "subtitle": "Toutes les actualités de l’association"
+            },
+            {
+                "type": "widget",
+                "widget": "news_list"
+            }
+        ],
+        "status": "published",
+        "position": 30,
+        "created_at": "2026-11-23T09:58:37.000000Z",
+        "updated_at": "2026-11-23T09:58:37.000000Z"
+    },
+    {
+        "id": 21,
+        "slug": "actualites-membres",
+        "title": "Actualités membres",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Actualités membres",
+                "subtitle": "Les actualités de nos compagnies et partenaires"
+            },
+            {
+                "type": "widget",
+                "widget": "news_list",
+                "filter": "Membres"
+            }
+        ],
+        "status": "published",
+        "position": 31,
+        "created_at": "2026-11-23T09:58:38.000000Z",
+        "updated_at": "2026-11-23T09:58:38.000000Z"
+    },
+    {
+        "id": 22,
+        "slug": "actualites-communiques",
+        "title": "Communiqués",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Communiqués",
+                "subtitle": "Déclarations officielles et communiqués de presse",
+                "image": null,
+                "members_only": false,
+                "items": [],
+                "text": null
+            },
+            {
+                "type": "cards",
+                "items": [
+                    {
+                        "title": "Communiqué de presse — 132ème Assemblée Générale de l’ATAF",
+                        "text": "25 août 2026",
+                        "image": "pages\/items\/qL051p8y1chTX2P2xxOQMeji5lVd2uw9djarUmd2.jpg",
+                        "download_url": null,
+                        "subtitle": null,
+                        "url": null
+                    },
+                    {
+                        "title": "Prise de position ATAF sur la réforme du code de l’aviation civile",
+                        "text": "10 juillet 2026",
+                        "image": null,
+                        "download_url": null,
+                        "subtitle": null,
+                        "url": null
+                    },
+                    {
+                        "title": "ATAF salue la nomination de nouveaux dirigeants chez ses membres",
+                        "text": "26 mai 2026",
+                        "image": null,
+                        "download_url": null,
+                        "subtitle": null,
+                        "url": null
+                    },
+                    {
+                        "title": "Déclaration de l’ATAF sur la transition environnementale du transport aérien",
+                        "text": "15 avril 2026",
+                        "image": null,
+                        "download_url": null,
+                        "subtitle": null,
+                        "url": null
+                    }
+                ],
+                "image": null,
+                "avatar": false,
+                "members_only": false,
+                "title": null,
+                "subtitle": null
+            }
+        ],
+        "status": "published",
+        "position": 32,
+        "created_at": "2026-11-23T09:58:38.000000Z",
+        "updated_at": "2026-11-24T11:43:38.000000Z"
+    },
+    {
+        "id": 23,
+        "slug": "actualites-veille",
+        "title": "Veille aéronautique",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Veille aéronautique",
+                "subtitle": "Revue de presse et actualités du secteur"
+            },
+            {
+                "type": "cards",
+                "items": [
+                    {
+                        "title": "Bilan du trafic aérien mondial - Août 2026",
+                        "subtitle": "newsaero.info",
+                        "text": "15 septembre 2026"
+                    },
+                    {
+                        "title": "ICAO Council adopts new safety standards for runway incursions",
+                        "subtitle": "ICAO",
+                        "text": "10 septembre 2026"
+                    },
+                    {
+                        "title": "Airlines see passenger demand grow 8% year-on-year in August 2026",
+                        "subtitle": "IATA",
+                        "text": "8 septembre 2026"
+                    },
+                    {
+                        "title": "African aviation traffic report Q2 2026",
+                        "subtitle": "AFRAA",
+                        "text": "5 septembre 2026"
+                    },
+                    {
+                        "title": "KlasJet renforce ses capacités ACMI avec l’ajout de nouveaux appareils",
+                        "subtitle": "newsaero.info",
+                        "text": "3 septembre 2026"
+                    },
+                    {
+                        "title": "ASECNA modernise ses systèmes de contrôle aérien dans 6 pays",
+                        "subtitle": "ASECNA",
+                        "text": "28 août 2026"
+                    }
+                ]
+            }
+        ],
+        "status": "published",
+        "position": 33,
+        "created_at": "2026-11-23T09:58:38.000000Z",
+        "updated_at": "2026-11-23T09:58:38.000000Z"
+    },
+    {
+        "id": 24,
+        "slug": "evenements-agenda",
+        "title": "Agenda des événements",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Agenda des événements",
+                "subtitle": "Séminaires, formations, assemblées et conférences ATAF"
+            },
+            {
+                "type": "widget",
+                "widget": "events_list"
+            }
+        ],
+        "status": "published",
+        "position": 34,
+        "created_at": "2026-11-23T09:58:38.000000Z",
+        "updated_at": "2026-11-23T09:58:38.000000Z"
+    },
+    {
+        "id": 25,
+        "slug": "evenements-seminaires",
+        "title": "Séminaires",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Séminaires",
+                "subtitle": "Rencontres professionnelles et retours d’expérience du secteur"
+            },
+            {
+                "type": "widget",
+                "widget": "events_list",
+                "filter": "Séminaire"
+            }
+        ],
+        "status": "published",
+        "position": 35,
+        "created_at": "2026-11-23T09:58:38.000000Z",
+        "updated_at": "2026-11-23T09:58:38.000000Z"
+    },
+    {
+        "id": 26,
+        "slug": "evenements-formations",
+        "title": "Formations",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Formations",
+                "subtitle": "Développer les compétences des professionnels du transport aérien"
+            },
+            {
+                "type": "widget",
+                "widget": "events_list",
+                "filter": "Formation"
+            }
+        ],
+        "status": "published",
+        "position": 36,
+        "created_at": "2026-11-23T09:58:39.000000Z",
+        "updated_at": "2026-11-23T09:58:39.000000Z"
+    },
+    {
+        "id": 27,
+        "slug": "evenements-assemblees",
+        "title": "Assemblées générales",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Assemblées générales",
+                "subtitle": "Les rendez-vous statutaires de l’association"
+            },
+            {
+                "type": "widget",
+                "widget": "events_list",
+                "filter": "Assemblée générale"
+            }
+        ],
+        "status": "published",
+        "position": 37,
+        "created_at": "2026-11-23T09:58:39.000000Z",
+        "updated_at": "2026-11-23T09:58:39.000000Z"
+    },
+    {
+        "id": 28,
+        "slug": "evenements-conferences",
+        "title": "Conférences",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Conférences",
+                "subtitle": "Échanges avec les acteurs du transport aérien francophone"
+            },
+            {
+                "type": "widget",
+                "widget": "events_list",
+                "filter": "Conférence"
+            }
+        ],
+        "status": "published",
+        "position": 38,
+        "created_at": "2026-11-23T09:58:39.000000Z",
+        "updated_at": "2026-11-23T09:58:39.000000Z"
+    },
+    {
+        "id": 29,
+        "slug": "reglementation-veille",
+        "title": "Veille réglementaire",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Veille réglementaire",
+                "subtitle": "Dernières évolutions du cadre réglementaire aéronautique international"
+            },
+            {
+                "type": "widget",
+                "widget": "regulations_list"
+            }
+        ],
+        "status": "published",
+        "position": 39,
+        "created_at": "2026-11-23T09:58:39.000000Z",
+        "updated_at": "2026-11-23T09:58:39.000000Z"
+    },
+    {
+        "id": 30,
+        "slug": "reglementation-textes",
+        "title": "Textes réglementaires",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Textes réglementaires",
+                "subtitle": "Base documentaire réglementaire ATAF"
+            },
+            {
+                "type": "widget",
+                "widget": "documents_table"
+            }
+        ],
+        "status": "published",
+        "position": 40,
+        "created_at": "2026-11-23T09:58:40.000000Z",
+        "updated_at": "2026-11-23T09:58:40.000000Z"
+    },
+    {
+        "id": 31,
+        "slug": "reglementation-publications",
+        "title": "Publications",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Publications",
+                "subtitle": "Publications officielles de l’ATAF"
+            },
+            {
+                "type": "widget",
+                "widget": "publications_list"
+            }
+        ],
+        "status": "published",
+        "position": 41,
+        "created_at": "2026-11-23T09:58:40.000000Z",
+        "updated_at": "2026-11-23T09:58:40.000000Z"
+    },
+    {
+        "id": 32,
+        "slug": "reglementation-notes",
+        "title": "Notes et analyses",
+        "subtitle": null,
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Notes et analyses",
+                "subtitle": "Analyses et notes d’information ATAF"
+            },
+            {
+                "type": "widget",
+                "widget": "regulations_notes"
+            }
+        ],
+        "status": "published",
+        "position": 42,
+        "created_at": "2026-11-23T09:58:40.000000Z",
+        "updated_at": "2026-11-23T09:58:40.000000Z"
+    },
+    {
+        "id": 33,
+        "slug": "contact-compagnies-aeriennes",
+        "title": "Compagnies aériennes",
+        "subtitle": "Contacts des compagnies membres de l’ATAF",
+        "body": null,
+        "sections": [
+            {
+                "type": "hero",
+                "title": "Compagnies aériennes",
+                "subtitle": "Les coordonnées publiques de nos compagnies membres"
+            },
+            {
+                "type": "cards",
+                "title": "Annuaire des compagnies",
+                "subtitle": "Cliquez sur une fiche pour accéder au site officiel",
+                "items": [
+                    {
+                        "title": "Air Algérie",
+                        "subtitle": "Algérie",
+                        "text": "M. Hamza Behamouda — Alger · +213 21 74 24 28",
+                        "url": "https:\/\/airalgerie.dz"
+                    },
+                    {
+                        "title": "Air Austral",
+                        "subtitle": "La Réunion",
+                        "text": "M. Hugues Marchessaux — Sainte-Marie · +33 (0)2 62 93 10 10",
+                        "url": "https:\/\/www.air-austral.com"
+                    },
+                    {
+                        "title": "Air Burkina",
+                        "subtitle": "Burkina Faso",
+                        "text": "M. Wendkuni Serge Frédéric Zombré — Ouagadougou · +226 50 30 76 76",
+                        "url": "https:\/\/www.airburkina.com"
+                    },
+                    {
+                        "title": "Air Caraïbes",
+                        "subtitle": "France \/ Caraïbes",
+                        "text": "M. Géry Mortreux — Les Abymes · +33 (0)5 90 82 47 73",
+                        "url": "https:\/\/www.aircaraibes.com"
+                    },
+                    {
+                        "title": "Air Corsica",
+                        "subtitle": "France \/ Corse",
+                        "text": "M. Pierre Muracciole — Ajaccio · +33 (0)4 95 29 05 00",
+                        "url": "https:\/\/www.aircorsica.com"
+                    },
+                    {
+                        "title": "Air Côte d'Ivoire",
+                        "subtitle": "Côte d'Ivoire",
+                        "text": "Général Abdoulaye Coulibaly \/ M. Laurent Loukou — Abidjan · +225 21 75 00 55\/56",
+                        "url": "https:\/\/www.aircotedivoire.com"
+                    },
+                    {
+                        "title": "Air France",
+                        "subtitle": "France",
+                        "text": "Mme Anne Rigail — Roissy CDG · +33 (0)1 41 56 78 00",
+                        "url": "https:\/\/www.airfrance.com"
+                    },
+                    {
+                        "title": "Air Madagascar",
+                        "subtitle": "Madagascar",
+                        "text": "M. Rado Mamimosa Rabarilala — Antananarivo · +261 20 22 222 22",
+                        "url": "https:\/\/www.airmadagascar.com"
+                    },
+                    {
+                        "title": "Air Mauritius",
+                        "subtitle": "Maurice",
+                        "text": "M. André Viljoen — Port-Louis · +230 207 70 70",
+                        "url": "https:\/\/www.airmauritius.com"
+                    },
+                    {
+                        "title": "Air Sénégal",
+                        "subtitle": "Sénégal",
+                        "text": "M. Tidiane Ndiaye — Dakar · +221 33 868 35 95",
+                        "url": "https:\/\/www.flyairsenegal.com"
+                    },
+                    {
+                        "title": "Fly Gabon",
+                        "subtitle": "Gabon",
+                        "text": "M. Marc Gaffajoli \/ M. Nyl Moret-Mba — Libreville · +241 01 44 28 85",
+                        "url": "https:\/\/flygabon.com"
+                    },
+                    {
+                        "title": "APG Airlines",
+                        "subtitle": "France",
+                        "text": "Mme Sandrine de Saint-Sauveur — Paris · +33 (0)1 53 77 13 02",
+                        "url": "https:\/\/www.apg-airlines.com"
+                    },
+                    {
+                        "title": "Brussels Airlines",
+                        "subtitle": "Belgique",
+                        "text": "Mme Lorenza Maggio — Bruxelles · +32 2 754 19 07",
+                        "url": "https:\/\/www.brusselsairlines.com"
+                    },
+                    {
+                        "title": "Corsair",
+                        "subtitle": "France",
+                        "text": "M. Pascal de Izaguirre — Rungis · +33 (0)1 81 94 10 66",
+                        "url": "https:\/\/www.flycorsair.com"
+                    },
+                    {
+                        "title": "Congo Airways",
+                        "subtitle": "République démocratique du Congo",
+                        "text": "M. Alexandre Mukendi Tshikala — Kinshasa · +243 81 55 55 869",
+                        "url": "https:\/\/www.congoairways.com"
+                    },
+                    {
+                        "title": "Mauritania Airlines",
+                        "subtitle": "Mauritanie",
+                        "text": "M. Ahmed Salem Mohamed Vall Ammi — Nouakchott · +222 45 24 12 53",
+                        "url": "https:\/\/www.mauritaniaairlines.com"
+                    },
+                    {
+                        "title": "Middle East Airlines",
+                        "subtitle": "Liban",
+                        "text": "M. Mohamad El-Hout — Beyrouth · +961 1 62 88 88",
+                        "url": "https:\/\/www.mea.com.lb"
+                    },
+                    {
+                        "title": "Regourd Aviation",
+                        "subtitle": "France",
+                        "text": "M. Alain Regourd — Paris · +33 1 53 67 71 00",
+                        "url": "https:\/\/www.regourd-aviation.com"
+                    },
+                    {
+                        "title": "ER Aviation",
+                        "subtitle": "France",
+                        "text": "M. Alexandre Fayd’Herbe de Maudave — Moka · +230 202 66 30",
+                        "url": "https:\/\/www.er-aviation.com"
+                    },
+                    {
+                        "title": "Royal Air Maroc",
+                        "subtitle": "Maroc",
+                        "text": "M. Abdelhamid Addou — Casablanca · +212 5 22 91 20 00",
+                        "url": "https:\/\/www.royalairmaroc.com"
+                    },
+                    {
+                        "title": "Tunisair",
+                        "subtitle": "Tunisie",
+                        "text": "Mme Halima Ibrahim Khouaja — Tunis-Carthage · +216 70 837 000",
+                        "url": "https:\/\/www.tunisair.com"
+                    }
+                ]
+            }
+        ],
+        "status": "published",
+        "position": 11,
+        "created_at": "2026-11-24T09:05:47.000000Z",
+        "updated_at": "2026-11-24T09:08:55.000000Z"
+    }
+]
